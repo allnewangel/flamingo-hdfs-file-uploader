@@ -24,7 +24,7 @@ import org.openflamingo.uploader.jaxb.Cluster;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.GlobalVariable;
 import org.openflamingo.uploader.jaxb.Property;
-import org.openflamingo.uploader.util.ExceptionUtils;
+import org.openflamingo.uploader.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,8 +196,7 @@ public class JobContextImpl implements JobContext {
 	 * @return Property의 <code>name</code>에 해당하는 값, 존재하지 않는 경우 <code>null</code>
 	 */
 	public String getValue(String name) {
-		String property = props.getProperty(name);
-		return substituteVars(props, evaluate(property));
+		return substituteVars(props, evaluate(name));
 	}
 
 	/**
@@ -207,10 +206,14 @@ public class JobContextImpl implements JobContext {
 	 * @return EL과 Function을 해석한 문자열
 	 */
 	public String evaluate(String value) {
+		if (StringUtils.isEmpty(value)) {
+			return "";
+		}
 		try {
 			return evaluator.evaluate(value, String.class);
 		} catch (Exception e) {
-			throw new ELException(ExceptionUtils.getMessage("EL을 포함함 변수값 '{}'을 해석할 수 없습니다.", value), e);
+			e.printStackTrace();
+			return value;
 		}
 	}
 

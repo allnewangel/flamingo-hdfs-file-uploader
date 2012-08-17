@@ -11,7 +11,7 @@
 		</layout>
 	</appender>
 
-	<category name="org.openflamingo">
+	<category name="org.openflamingo.uploader">
 		<priority value="DEBUG"/>
 	</category>
 
