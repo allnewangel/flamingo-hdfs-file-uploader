@@ -1,6 +1,5 @@
 package org.openflamingo.uploader;
 
-import org.apache.commons.lang.StringUtils;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.Local;
 import org.openflamingo.uploader.util.DateUtils;
@@ -10,7 +9,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.ThrowsAdvice;
 
 import java.util.Date;
 
