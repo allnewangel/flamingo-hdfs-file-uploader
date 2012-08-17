@@ -43,7 +43,7 @@ public class QuartzJob implements Job {
 			String conditionType = local.getSourceDirectory().getConditionType();
 		}
 
-
+		logger.info("Job '{}'을 완료하였습니다 :: {}", job.getName(), DateUtils.parseDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
 	}
 
 }
