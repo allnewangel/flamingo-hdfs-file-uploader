@@ -1,5 +1,6 @@
 package org.openflamingo.uploader;
 
+import org.apache.commons.lang.StringUtils;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.Local;
 import org.openflamingo.uploader.util.DateUtils;
@@ -9,6 +10,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.ThrowsAdvice;
 
 import java.util.Date;
 
@@ -32,7 +34,10 @@ public class QuartzJob implements Job {
 		org.openflamingo.uploader.jaxb.Job job = (org.openflamingo.uploader.jaxb.Job) dataMap.get("job");
 		JobContext jobContext = (JobContext) dataMap.get("context");
 
-		logger.info("Job '{}'을 시작합니다 :: {}", job.getName(), DateUtils.parseDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+		Date startDate = new Date();
+		logger.info("--------------------------------------------");
+		logger.info("Job '{}'을 시작합니다", job.getName());
+		logger.info("--------------------------------------------");
 		if (job.getPolicy().getIngress().getLocal() != null) {
 			Local local = job.getPolicy().getIngress().getLocal();
 			String completeDirectory = local.getCompleteDirectory();
@@ -43,7 +48,15 @@ public class QuartzJob implements Job {
 			String conditionType = local.getSourceDirectory().getConditionType();
 		}
 
-		logger.info("Job '{}'을 완료하였습니다 :: {}", job.getName(), DateUtils.parseDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+		}
+		Date endDate = new Date();
+		logger.info("Job '{}'을 완료하였습니다", job.getName());
+		logger.info("Job '{}'을 처리하는데 소요된 총 시간은 {} (시작: {} / 종료: {})입니다.", new String[]{
+			job.getName(), DateUtils.formatDiffTime(endDate, startDate), DateUtils.parseDate(startDate, "yyyy-MM-dd HH:mm:ss"), DateUtils.parseDate(endDate, "yyyy-MM-dd HH:mm:ss")
+		});
 	}
 
 }
