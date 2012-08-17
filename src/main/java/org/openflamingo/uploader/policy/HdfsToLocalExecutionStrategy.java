@@ -30,10 +30,10 @@ import org.openflamingo.uploader.jaxb.Policy;
  */
 public class HdfsToLocalExecutionStrategy implements PolicyExecutionStrategy {
 
-	@Override
-	public void run(Policy policy, JobContext jobContext) throws Exception {
-		Hdfs from = policy.getIngress().getHdfs();
-		Local to = policy.getOutgress().getLocal();
-	}
+    @Override
+    public void run(Policy policy, JobContext jobContext) throws Exception {
+        Hdfs from = policy.getIngress().getHdfs();
+        Local to = policy.getOutgress().getLocal();
+    }
 
 }

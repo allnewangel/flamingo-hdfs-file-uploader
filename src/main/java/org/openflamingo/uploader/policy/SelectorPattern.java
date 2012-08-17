@@ -27,8 +27,8 @@ import org.openflamingo.uploader.JobContext;
  */
 public interface SelectorPattern {
 
-	boolean accept(String filename);
+    boolean accept(String filename);
 
-	JobContext getJobContext();
+    JobContext getJobContext();
 
 }

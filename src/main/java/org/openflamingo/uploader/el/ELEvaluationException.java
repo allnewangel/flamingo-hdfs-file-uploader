@@ -22,23 +22,23 @@ package org.openflamingo.uploader.el;
  */
 public class ELEvaluationException extends RuntimeException {
 
-	/**
-	 * Create a EL evaluation exception.
-	 *
-	 * @param message exception message.
-	 * @param cause   exception cause.
-	 */
-	public ELEvaluationException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    /**
+     * Create a EL evaluation exception.
+     *
+     * @param message exception message.
+     * @param cause   exception cause.
+     */
+    public ELEvaluationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	/**
-	 * Create a EL evaluation exception.
-	 *
-	 * @param cause exception cause.
-	 */
-	public ELEvaluationException(Throwable cause) {
-		super(cause);
-	}
+    /**
+     * Create a EL evaluation exception.
+     *
+     * @param cause exception cause.
+     */
+    public ELEvaluationException(Throwable cause) {
+        super(cause);
+    }
 
 }

@@ -33,74 +33,74 @@ import java.util.List;
  */
 public class CircularBuffer<T> implements Iterable<T> {
 
-	/**
-	 * 리스트 기반 버퍼
-	 */
-	private final List<T> buffer;
+    /**
+     * 리스트 기반 버퍼
+     */
+    private final List<T> buffer;
 
-	/**
-	 * 버퍼에 넣을 수 있는 아이템의 최대 개수
-	 */
-	private final int size;
+    /**
+     * 버퍼에 넣을 수 있는 아이템의 최대 개수
+     */
+    private final int size;
 
-	/**
-	 * 현재 버퍼의 위치
-	 */
-	private int start;
+    /**
+     * 현재 버퍼의 위치
+     */
+    private int start;
 
-	/**
-	 * 기본 생성자.
-	 *
-	 * @param size 버퍼에 넣을 수 있는 아이템의 최대 개수
-	 */
-	public CircularBuffer(int size) {
-		this.buffer = new ArrayList<T>();
-		this.size = size;
-		this.start = 0;
-	}
+    /**
+     * 기본 생성자.
+     *
+     * @param size 버퍼에 넣을 수 있는 아이템의 최대 개수
+     */
+    public CircularBuffer(int size) {
+        this.buffer = new ArrayList<T>();
+        this.size = size;
+        this.start = 0;
+    }
 
-	/**
-	 * 아이템을 추가한다.
-	 *
-	 * @param item 아이템
-	 */
-	public void append(T item) {
-		if (buffer.size() < size) {
-			buffer.add(item);
-		} else {
-			buffer.set(start, item);
-			start = (start + 1) % size;
-		}
-	}
+    /**
+     * 아이템을 추가한다.
+     *
+     * @param item 아이템
+     */
+    public void append(T item) {
+        if (buffer.size() < size) {
+            buffer.add(item);
+        } else {
+            buffer.set(start, item);
+            start = (start + 1) % size;
+        }
+    }
 
-	@Override
-	public String toString() {
-		return "CircularBuffer [" + Joiner.on(", ").join(buffer) + "]";
-	}
+    @Override
+    public String toString() {
+        return "CircularBuffer [" + Joiner.on(", ").join(buffer) + "]";
+    }
 
-	public Iterator<T> iterator() {
-		if (start == 0)
-			return buffer.iterator();
-		else
-			return Iterators.concat(buffer.subList(start, buffer.size()).iterator(), buffer.subList(0, start).iterator());
-	}
+    public Iterator<T> iterator() {
+        if (start == 0)
+            return buffer.iterator();
+        else
+            return Iterators.concat(buffer.subList(start, buffer.size()).iterator(), buffer.subList(0, start).iterator());
+    }
 
-	/**
-	 * 버퍼에 넣을 수 있는 최대 아이템의 개수를 반환한다.
-	 *
-	 * @return 버퍼에 넣을 수 있는 최대 아이템의 개수
-	 */
-	public int getMaxSize() {
-		return this.size;
-	}
+    /**
+     * 버퍼에 넣을 수 있는 최대 아이템의 개수를 반환한다.
+     *
+     * @return 버퍼에 넣을 수 있는 최대 아이템의 개수
+     */
+    public int getMaxSize() {
+        return this.size;
+    }
 
-	/**
-	 * 현재 버퍼에 들어있는 아이템의 개수를 반환한다.
-	 *
-	 * @return 현재 버퍼에 들어있는 아이템의 개수
-	 */
-	public int getSize() {
-		return this.buffer.size();
-	}
+    /**
+     * 현재 버퍼에 들어있는 아이템의 개수를 반환한다.
+     *
+     * @return 현재 버퍼에 들어있는 아이템의 개수
+     */
+    public int getSize() {
+        return this.buffer.size();
+    }
 
 }

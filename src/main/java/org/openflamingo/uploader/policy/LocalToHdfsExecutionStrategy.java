@@ -28,8 +28,8 @@ import org.openflamingo.uploader.jaxb.Policy;
  */
 public class LocalToHdfsExecutionStrategy implements PolicyExecutionStrategy {
 
-	@Override
-	public void run(Policy policy, JobContext jobContext) throws Exception {
-	}
+    @Override
+    public void run(Policy policy, JobContext jobContext) throws Exception {
+    }
 
 }

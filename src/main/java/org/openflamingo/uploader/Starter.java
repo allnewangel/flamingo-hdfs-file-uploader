@@ -28,9 +28,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class Starter {
 
-	public static void main(String[] args) {
-		AbstractApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
-		applicationContext.registerShutdownHook();
-	}
+    public static void main(String[] args) {
+        AbstractApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+        applicationContext.registerShutdownHook();
+    }
 
 }

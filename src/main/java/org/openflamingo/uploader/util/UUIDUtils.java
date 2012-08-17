@@ -32,13 +32,13 @@ import java.util.UUID;
  */
 public class UUIDUtils {
 
-	/**
-	 * 고유한 UUID를 생성한다.
-	 *
-	 * @return 생성된 UUID
-	 */
-	public static String generateUUID() {
-		return UUID.randomUUID().toString();
-	}
+    /**
+     * 고유한 UUID를 생성한다.
+     *
+     * @return 생성된 UUID
+     */
+    public static String generateUUID() {
+        return UUID.randomUUID().toString();
+    }
 
 }

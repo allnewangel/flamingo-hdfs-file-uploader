@@ -10,11 +10,11 @@ import org.openflamingo.uploader.jaxb.Policy;
  */
 public class PolicyFactory {
 
-	public static PolicyExecutionStrategy getPolicyExecutionStrategy(Policy policy) {
-		Policy.Ingress ingress = policy.getIngress();
+    public static PolicyExecutionStrategy getPolicyExecutionStrategy(Policy policy) {
+        Policy.Ingress ingress = policy.getIngress();
 
-		Policy.Outgress outgress = policy.getOutgress();
+        Policy.Outgress outgress = policy.getOutgress();
 
-		return null;
-	}
+        return null;
+    }
 }

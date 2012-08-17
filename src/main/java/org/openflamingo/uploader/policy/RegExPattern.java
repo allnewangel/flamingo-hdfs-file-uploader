@@ -30,35 +30,35 @@ import java.util.regex.Pattern;
  */
 public class RegExPattern implements SelectorPattern {
 
-	/**
-	 * HDFS File Uploader Job Context
-	 */
-	private JobContext jobContext;
+    /**
+     * HDFS File Uploader Job Context
+     */
+    private JobContext jobContext;
 
-	/**
-	 * Regular Expression Pattern
-	 */
-	Pattern pattern;
+    /**
+     * Regular Expression Pattern
+     */
+    Pattern pattern;
 
-	/**
-	 * 기본 생성자.
-	 *
-	 * @param pattern Start With에 적용할 문자열 패턴
-	 */
-	public RegExPattern(String pattern, JobContext jobContext) {
-		this.pattern = Pattern.compile(pattern);
-		this.jobContext = jobContext;
-	}
+    /**
+     * 기본 생성자.
+     *
+     * @param pattern Start With에 적용할 문자열 패턴
+     */
+    public RegExPattern(String pattern, JobContext jobContext) {
+        this.pattern = Pattern.compile(pattern);
+        this.jobContext = jobContext;
+    }
 
-	@Override
-	public boolean accept(String filename) {
-		String evaluated = jobContext.getValue(filename);
-		Matcher matcher = pattern.matcher(evaluated);
-		return matcher.find();
-	}
+    @Override
+    public boolean accept(String filename) {
+        String evaluated = jobContext.getValue(filename);
+        Matcher matcher = pattern.matcher(evaluated);
+        return matcher.find();
+    }
 
-	@Override
-	public JobContext getJobContext() {
-		return jobContext;
-	}
+    @Override
+    public JobContext getJobContext() {
+        return jobContext;
+    }
 }

@@ -28,13 +28,13 @@ import org.openflamingo.uploader.jaxb.Policy;
  */
 public interface PolicyExecutionStrategy {
 
-	/**
-	 * Policy를 실행한다.
-	 *
-	 * @param policy     Uplaoder Job의 Policy
-	 * @param jobContext Job Context
-	 * @throws Exception Job 실행중 에러가 발생하는 경우 또는 실행할 수 없는 경우
-	 */
-	void run(Policy policy, JobContext jobContext) throws Exception;
+    /**
+     * Policy를 실행한다.
+     *
+     * @param policy     Uplaoder Job의 Policy
+     * @param jobContext Job Context
+     * @throws Exception Job 실행중 에러가 발생하는 경우 또는 실행할 수 없는 경우
+     */
+    void run(Policy policy, JobContext jobContext) throws Exception;
 
 }

@@ -27,17 +27,17 @@ import org.apache.commons.lang.math.JVMRandom;
  */
 public class JVMIDUtils {
 
-	/**
-	 * JVM Random 값을 생성하는 JVMRandom
-	 */
-	protected static JVMRandom random = new JVMRandom();
+    /**
+     * JVM Random 값을 생성하는 JVMRandom
+     */
+    protected static JVMRandom random = new JVMRandom();
 
-	/**
-	 * 고유한 JVM UUID를 생성한다.
-	 *
-	 * @return 생성된 JVM UUID
-	 */
-	public static String generateUUID() {
-		return String.valueOf(random.nextInt(999999999));
-	}
+    /**
+     * 고유한 JVM UUID를 생성한다.
+     *
+     * @return 생성된 JVM UUID
+     */
+    public static String generateUUID() {
+        return String.valueOf(random.nextInt(999999999));
+    }
 }

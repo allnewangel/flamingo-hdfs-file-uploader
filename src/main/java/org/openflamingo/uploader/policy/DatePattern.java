@@ -27,35 +27,35 @@ import org.openflamingo.uploader.JobContext;
  */
 public class DatePattern implements SelectorPattern {
 
-	/**
-	 * 파일명이 지정한 문자열로 시작하는지 확인하기 위한 Simple Date Format 패턴
-	 */
-	private String pattern;
+    /**
+     * 파일명이 지정한 문자열로 시작하는지 확인하기 위한 Simple Date Format 패턴
+     */
+    private String pattern;
 
-	/**
-	 * HDFS File Uploader Job Context
-	 */
-	private JobContext jobContext;
+    /**
+     * HDFS File Uploader Job Context
+     */
+    private JobContext jobContext;
 
-	/**
-	 * 기본 생성자.
-	 *
-	 * @param pattern 문자열 패턴
-	 */
-	public DatePattern(String pattern, JobContext jobContext) {
-		this.pattern = pattern;
-		this.jobContext = jobContext;
-	}
+    /**
+     * 기본 생성자.
+     *
+     * @param pattern 문자열 패턴
+     */
+    public DatePattern(String pattern, JobContext jobContext) {
+        this.pattern = pattern;
+        this.jobContext = jobContext;
+    }
 
-	@Override
-	public boolean accept(String filename) {
-		String evaluated = jobContext.getValue(filename);
-		String dateFormat = jobContext.getValue(pattern);
-		return org.springframework.util.StringUtils.countOccurrencesOf(evaluated, dateFormat) > 0;
-	}
+    @Override
+    public boolean accept(String filename) {
+        String evaluated = jobContext.getValue(filename);
+        String dateFormat = jobContext.getValue(pattern);
+        return org.springframework.util.StringUtils.countOccurrencesOf(evaluated, dateFormat) > 0;
+    }
 
-	@Override
-	public JobContext getJobContext() {
-		return jobContext;
-	}
+    @Override
+    public JobContext getJobContext() {
+        return jobContext;
+    }
 }

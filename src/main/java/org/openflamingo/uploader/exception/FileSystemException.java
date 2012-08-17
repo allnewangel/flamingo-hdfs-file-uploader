@@ -25,19 +25,19 @@ package org.openflamingo.uploader.exception;
  */
 public class FileSystemException extends SystemException {
 
-	public FileSystemException() {
-		super();
-	}
+    public FileSystemException() {
+        super();
+    }
 
-	public FileSystemException(String message) {
-		super(message);
-	}
+    public FileSystemException(String message) {
+        super(message);
+    }
 
-	public FileSystemException(String message, Throwable throwable) {
-		super(message, throwable);
-	}
+    public FileSystemException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 
-	public FileSystemException(Throwable throwable) {
-		super(throwable);
-	}
+    public FileSystemException(Throwable throwable) {
+        super(throwable);
+    }
 }

@@ -28,34 +28,34 @@ import org.springframework.util.AntPathMatcher;
  */
 public class AntPathPattern implements SelectorPattern {
 
-	/**
-	 * 파일명이 지정한 문자열로 시작하는지 확인하기 위한 패턴
-	 */
-	private String pattern;
+    /**
+     * 파일명이 지정한 문자열로 시작하는지 확인하기 위한 패턴
+     */
+    private String pattern;
 
-	/**
-	 * HDFS File Uploader Job Context
-	 */
-	private JobContext jobContext;
+    /**
+     * HDFS File Uploader Job Context
+     */
+    private JobContext jobContext;
 
-	/**
-	 * 기본 생성자.
-	 *
-	 * @param pattern Start With에 적용할 문자열 패턴
-	 */
-	public AntPathPattern(String pattern, JobContext jobContext) {
-		this.pattern = pattern;
-		this.jobContext = jobContext;
-	}
+    /**
+     * 기본 생성자.
+     *
+     * @param pattern Start With에 적용할 문자열 패턴
+     */
+    public AntPathPattern(String pattern, JobContext jobContext) {
+        this.pattern = pattern;
+        this.jobContext = jobContext;
+    }
 
-	@Override
-	public boolean accept(String filename) {
-		String evaluated = jobContext.getValue(filename);
-		return new AntPathMatcher().match(pattern, evaluated);
-	}
+    @Override
+    public boolean accept(String filename) {
+        String evaluated = jobContext.getValue(filename);
+        return new AntPathMatcher().match(pattern, evaluated);
+    }
 
-	@Override
-	public JobContext getJobContext() {
-		return jobContext;
-	}
+    @Override
+    public JobContext getJobContext() {
+        return jobContext;
+    }
 }
