@@ -34,9 +34,15 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 	 */
 	private Logger logger = LoggerFactory.getLogger(JobRegister.class);
 
+	/**
+	 * Quartz Job Scheduler
+	 */
 	@Autowired
 	private Scheduler scheduler;
 
+	/**
+	 * Expression Language(EL) Service
+	 */
 	@Autowired
 	private ELService elService;
 
@@ -86,6 +92,15 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 		}
 	}
 
+	/**
+	 * 글로별 변수에 포함되어 있는 EL을 처리하기 위해서 글로별 변수로 정의되어 있는 Key Value를 Expression Language Evaluator에 변수로 설정하고
+	 * EL을 해석하는 EL Evaluator를 반환한다.
+	 *
+	 * @param model   Flamingo HDFS File Uploader JAXB Object
+	 * @param service EL Service
+	 * @return EL Evaluator
+	 * @throws Exception EL Evaluator가 변수를 처리할 수 없는 경우
+	 */
 	private ELEvaluator getEvaluator(Flamingo model, ELService service) throws Exception {
 		ELEvaluator evaluator = service.createEvaluator();
 		if (model.getGlobalVariables() != null) {
@@ -97,18 +112,39 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 		return evaluator;
 	}
 
-	private Date getEnd(JobContext jobContext, End end) {
-		String date = jobContext.getValue(end.getDate());
-		String datePattern = end.getDatePattern();
-		return getDate(date, datePattern);
-	}
-
+	/**
+	 * 스케줄링 작업의 시작 시간을 반환한다.
+	 *
+	 * @param jobContext Job Context
+	 * @param start      Schedule 정보의 시작 시간
+	 * @return {@link java.util.Date} 객체
+	 */
 	private Date getStart(JobContext jobContext, Start start) {
 		String date = jobContext.getValue(start.getDate());
 		String datePattern = start.getDatePattern();
 		return getDate(date, datePattern);
 	}
 
+	/**
+	 * 스케줄링 작업의 종료 시간을 반환한다.
+	 *
+	 * @param jobContext Job Context
+	 * @param end        Schedule 정보의 종료 시간
+	 * @return {@link java.util.Date} 객체
+	 */
+	private Date getEnd(JobContext jobContext, End end) {
+		String date = jobContext.getValue(end.getDate());
+		String datePattern = end.getDatePattern();
+		return getDate(date, datePattern);
+	}
+
+	/**
+	 * 문자열 날짜와 패턴을 이용하여 {@link java.util.Date}을 생성한다.
+	 *
+	 * @param date        문자열 날짜
+	 * @param datePattern Simple Date Format Pattern
+	 * @return {@link java.util.Date} 객체
+	 */
 	private Date getDate(String date, String datePattern) {
 		if (StringUtils.isEmpty(date) || StringUtils.isEmpty(datePattern)) {
 			return null;
@@ -120,6 +156,17 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 		}
 	}
 
+	/**
+	 * Quartz Job을 스케줄링한다.
+	 *
+	 * @param jobName        Quartz Job Name
+	 * @param jobGroupName   Quartz Job Group Name
+	 * @param cronExpression Cron Expression
+	 * @param start          Start
+	 * @param end            End
+	 * @param dataMap        Key Value Parameter Map
+	 * @return Job Key
+	 */
 	public JobKey startJob(String jobName, String jobGroupName, String cronExpression, Date start, Date end, Map<String, Object> dataMap) {
 		try {
 			JobKey jobKey = new JobKey(jobName, jobGroupName);
@@ -144,6 +191,15 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 		}
 	}
 
+	/**
+	 * Quartz Job을 스케줄링한다.
+	 *
+	 * @param jobName        Quartz Job Name
+	 * @param jobGroupName   Quartz Job Group Name
+	 * @param cronExpression Cron Expression
+	 * @param dataMap        Key Value Parameter Map
+	 * @return Job Key
+	 */
 	public JobKey startJobImmediatly(String jobName, String jobGroupName, String cronExpression, Map<String, Object> dataMap) {
 		try {
 			JobKey jobKey = new JobKey(jobName, jobGroupName);
