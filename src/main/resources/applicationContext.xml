@@ -46,7 +46,7 @@
 
 	<!-- ========================= EL SERVICE DEFINITION ========================= -->
 
-	<bean id="elService" class="org.openflamingo.uploader.el.ELService">
+	<bean id="elService" class="org.openflamingo.uploader.el.ELService" destroy-method="destroy">
 		<property name="definitions">
 			<bean class="org.springframework.beans.factory.config.MapFactoryBean">
 				<property name="sourceMap">

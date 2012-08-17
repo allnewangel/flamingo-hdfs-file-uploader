@@ -212,7 +212,6 @@ public class JobContextImpl implements JobContext {
 		try {
 			return evaluator.evaluate(value, String.class);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return value;
 		}
 	}
