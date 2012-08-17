@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+	<!-- ========================= PROPERTY PLACE HOLDER DEFINITION ========================= -->
+
+	<bean name="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+	      p:ignoreUnresolvablePlaceholders="true" p:ignoreResourceNotFound="true">
+		<property name="locations">
+			<list>
+				<value>classpath:config.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- ========================= PROPERTIES DEFINITION ========================= -->
+
+	<util:properties id="config" location="classpath:config.properties"/>
+
+	<!-- ========================= COMPONENT SCAN DEFINITION ========================= -->
+
+	<context:component-scan base-package="org.openflamingo.uploader"/>
+
+	<!-- ========================= QUARTZ JOB SCHEDULER DEFINITION ========================= -->
+
+	<bean id="quartzJobScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="autoStartup" value="true"/>
+		<property name="beanName" value="scheduler"/>
+		<property name="applicationContextSchedulerContextKey" value="CTX"/>
+		<property name="waitForJobsToCompleteOnShutdown" value="true"/>
+	</bean>
+
+	<!-- ========================= TASK EXECUTOR DEFINITION ========================= -->
+
+	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5"/>
+		<property name="maxPoolSize" value="10"/>
+		<property name="queueCapacity" value="15"/>
+	</bean>
+
+	<!-- ========================= EL SERVICE DEFINITION ========================= -->
+
+	<bean id="elService" class="org.openflamingo.uploader.el.ELService">
+		<property name="definitions">
+			<bean class="org.springframework.beans.factory.config.MapFactoryBean">
+				<property name="sourceMap">
+					<map>
+						<entry key="EL.constants">
+							<value>
+								KB=org.openflamingo.uploader.el.ELConstantsFunctions#KB,
+								MB=org.openflamingo.uploader.el.ELConstantsFunctions#MB,
+								GB=org.openflamingo.uploader.el.ELConstantsFunctions#GB,
+								TB=org.openflamingo.uploader.el.ELConstantsFunctions#TB,
+								PB=org.openflamingo.uploader.el.ELConstantsFunctions#PB,
+								MINUTES=org.openflamingo.uploader.el.ELConstantsFunctions#MINUTES,
+								HOURS=org.openflamingo.uploader.el.ELConstantsFunctions#HOURS,
+								DAYS=org.openflamingo.uploader.el.ELConstantsFunctions#DAYS
+							</value>
+						</entry>
+						<entry key="EL.functions">
+							<value>
+								firstNotNull=org.openflamingo.uploader.el.ELConstantsFunctions#firstNotNull,
+								concat=org.openflamingo.uploader.el.ELConstantsFunctions#concat,
+								trim=org.openflamingo.uploader.el.ELConstantsFunctions#trim,
+								dateFormat=org.openflamingo.uploader.el.ELConstantsFunctions#dateFormat,
+								hostname=org.openflamingo.uploader.el.ELConstantsFunctions#hostname,
+								escapeString=org.openflamingo.uploader.el.ELConstantsFunctions#escapeString,
+								yesterday=org.openflamingo.uploader.el.ELConstantsFunctions#yesterday,
+								tommorow=org.openflamingo.uploader.el.ELConstantsFunctions#tommorow,
+								month=org.openflamingo.uploader.el.ELConstantsFunctions#month,
+								day=org.openflamingo.uploader.el.ELConstantsFunctions#day,
+								hour=org.openflamingo.uploader.el.ELConstantsFunctions#hour,
+								minute=org.openflamingo.uploader.el.ELConstantsFunctions#minute,
+								second=org.openflamingo.uploader.el.ELConstantsFunctions#second,
+								urlEncode=org.openflamingo.uploader.el.ELConstantsFunctions#urlEncode
+							</value>
+						</entry>
+					</map>
+				</property>
+			</bean>
+		</property>
+	</bean>
+</beans>
