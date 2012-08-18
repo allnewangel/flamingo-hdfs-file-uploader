@@ -1,8 +1,6 @@
 package org.openflamingo.uploader;
 
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.Path;
-import org.openflamingo.uploader.handler.LocalIngressHandler;
+import org.openflamingo.uploader.handler.LocalHandler;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.Local;
 import org.openflamingo.uploader.util.DateUtils;
@@ -13,10 +11,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.Random;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Quartz Job Scheduler based Flamingo HDFS File Uploader Job.
@@ -68,7 +63,9 @@ public class QuartzJob implements Job {
         logger.info("--------------------------------------------");
         if (job.getPolicy().getIngress().getLocal() != null) {
             Local local = job.getPolicy().getIngress().getLocal();
-            new LocalIngressHandler(jobContext, job, local).validate().execute();
+            LocalHandler localHandler = new LocalHandler(jobContext, job, local);
+            localHandler.validate();
+            localHandler.execute();
         }
 
         try {

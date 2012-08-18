@@ -35,6 +35,10 @@
 		<priority value="INFO"/>
 	</category>
 
+	<category name="org.apache.hadoop">
+		<priority value="INFO"/>
+	</category>
+
 	<category name="org.hibernate">
 		<priority value="INFO"/>
 	</category>

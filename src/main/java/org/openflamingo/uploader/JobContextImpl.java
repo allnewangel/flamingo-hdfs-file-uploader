@@ -101,7 +101,7 @@ public class JobContextImpl implements JobContext {
      * @return 문자열 Key Value의 Properties
      */
     protected Properties globalVariablesToProperties() {
-        if (model.getGlobalVariables() != null) {
+        if (model != null && model.getGlobalVariables() != null) {
             List<GlobalVariable> vars = model.getGlobalVariables().getGlobalVariable();
             Properties props = new Properties();
             for (GlobalVariable var : vars) {

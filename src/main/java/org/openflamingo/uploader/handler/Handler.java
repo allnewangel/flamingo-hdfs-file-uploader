@@ -15,25 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openflamingo.uploader.util;
+package org.openflamingo.uploader.handler;
 
 /**
- * File System Enumeration.
+ * Ingress 처리를 하는 핸들러 인터페이스.
  *
  * @author Edward KIM
  * @since 0.1
  */
-public enum FileSystemScheme {
+public interface Handler {
 
-    LOCAL("file:"), HDFS("hdfs://");
+    /**
+     * 핸들러를 실행한다.
+     */
+    void execute();
 
-    private String scheme;
+    /**
+     * 동작을 위한 기본 조건이 준비되었는지 검증한다.
+     */
+    void validate();
 
-    private FileSystemScheme(String scheme) {
-        this.scheme = scheme;
-    }
-
-    public String getScheme() {
-        return scheme;
-    }
 }
