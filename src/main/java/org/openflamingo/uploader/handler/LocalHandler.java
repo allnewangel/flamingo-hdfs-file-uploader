@@ -51,6 +51,12 @@ public class LocalHandler implements Handler {
     private Logger logger = LoggerFactory.getLogger(LocalHandler.class);
 
     /**
+     * 작업중인 파일의 확장자. 작업 디렉토리의 파일 중에서 다음의 확장자를 가진 파일은
+     * 현재 타 쓰레드가 작업중인 파일이므로 멀티 쓰레드로 처리하는 경우 타 쓰레드 처리를 위해서 처리하지 않는다.
+     */
+    public static final String PROCESSING_FILE_QUALIFIER = ".processing";
+
+    /**
      * HDFS File Uploader Job Context
      */
     private JobContext jobContext;
@@ -74,10 +80,11 @@ public class LocalHandler implements Handler {
     @Override
     public void execute() throws Exception {
         List<FileStatus> inboundFiles = copyToWorkingDirectory();
-        Iterator<FileStatus> iterator = inboundFiles.iterator();
+        List<FileStatus> files = getFilesFromWorkingDirectory();
+        Iterator<FileStatus> iterator = files.iterator();
         while (iterator.hasNext()) {
             FileStatus fileStatus = iterator.next();
-            System.out.println(fileStatus);
+            System.out.println(fileStatus.getPath());
         }
     }
 
@@ -135,6 +142,50 @@ public class LocalHandler implements Handler {
                     sourceDirectoryFS.rename(fs.getPath(), workPath);
                     logger.info("원본 파일 '{}'을 작업 디렉토리 '{}'으로 이동하였습니다.", fs.getPath(), workPath);
                     files.add(sourceDirectoryFS.getFileStatus(workPath));
+                }
+            }
+        }
+        return files;
+    }
+
+    /**
+     * 작업 디렉토리의 파일을 목록을 반환한다. 이때 작업중인 파일은 제외한다.
+     * 작업중인 파일은 확장자가 <tt>.processing</tt>으로 구성된다.
+     *
+     * @return 작업 디렉토리의 파일 중에서 작업이 진행중인 파일이 아닌 파일에 대한 목록
+     * @throws IOException 파일 시스템에 접근할 수 없거나 또는 파일 목록을 얻을 수 없는 경우
+     */
+    public List<FileStatus> getFilesFromWorkingDirectory() throws IOException {
+        String workingDirectory = correctPath(local.getWorkingDirectory());
+        FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
+        List<FileStatus> files = new LinkedList<FileStatus>();
+        for (FileStatus fs : workingDirectoryFS.listStatus(new Path(workingDirectory))) {
+            if (!fs.isDir()) {
+                if (fs.getPath().getName().endsWith(".processing")) {
+                    logger.info("'{}' 파일을 현재 작업중인 파일이므로 무시합니다", fs.getPath());
+                    continue;
+                }
+                files.add(fs);
+            }
+        }
+        return files;
+    }
+
+    /**
+     * 작업 디렉토리의 파일을 목록을 반환한다. 이때 작업중인 파일만으로 목록을 구성한다.
+     * 작업중인 파일은 확장자가 <tt>.processing</tt>으로 구성된다.
+     *
+     * @return 작업 디렉토리의 파일 중에서 작업이 진행중인 파일에 대한 목록
+     * @throws IOException 파일 시스템에 접근할 수 없거나 또는 파일 목록을 얻을 수 없는 경우
+     */
+    public List<FileStatus> getProcessingFilesFromWorkingDirectory() throws IOException {
+        String workingDirectory = correctPath(local.getWorkingDirectory());
+        FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
+        List<FileStatus> files = new LinkedList<FileStatus>();
+        for (FileStatus fs : workingDirectoryFS.listStatus(new Path(workingDirectory))) {
+            if (!fs.isDir()) {
+                if (fs.getPath().getName().endsWith(PROCESSING_FILE_QUALIFIER)) {
+                    files.add(fs);
                 }
             }
         }

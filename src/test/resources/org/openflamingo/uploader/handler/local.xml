@@ -30,7 +30,7 @@
 				<local>
 					<sourceDirectory conditionType="antPattern">
 						<path>${user.dir}/target/uploader/in</path>
-						<condition>rain_*.*</condition>
+						<condition>rain_*.txt</condition>
 					</sourceDirectory>
 					<workingDirectory>${user.dir}/target/uploader/work</workingDirectory>
 					<completeDirectory>${user.dir}/target/uploader/complete</completeDirectory>

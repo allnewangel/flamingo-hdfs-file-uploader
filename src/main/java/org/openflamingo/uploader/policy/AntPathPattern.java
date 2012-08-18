@@ -18,6 +18,8 @@
 package org.openflamingo.uploader.policy;
 
 import org.openflamingo.uploader.JobContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 
 /**
@@ -27,6 +29,11 @@ import org.springframework.util.AntPathMatcher;
  * @since 0.1
  */
 public class AntPathPattern implements SelectorPattern {
+
+    /**
+     * SLF4J Logging
+     */
+    private Logger logger = LoggerFactory.getLogger(AntPathPattern.class);
 
     /**
      * 파일명이 지정한 문자열로 시작하는지 확인하기 위한 패턴
@@ -51,7 +58,11 @@ public class AntPathPattern implements SelectorPattern {
     @Override
     public boolean accept(String filename) {
         String evaluated = jobContext.getValue(filename);
-        return new AntPathMatcher().match(pattern, evaluated);
+        boolean matched = new AntPathMatcher().match(pattern, evaluated);
+        if(!matched) {
+            logger.debug("'{}' 파일은 Ant Path Pattern '{}'와 일치하지 않아서 사용하지 않습니다.", evaluated, pattern);
+        }
+        return matched;
     }
 
     @Override
