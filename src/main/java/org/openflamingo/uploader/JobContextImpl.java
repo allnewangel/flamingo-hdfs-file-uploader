@@ -69,7 +69,7 @@ public class JobContextImpl implements JobContext {
     public final static String JOB_TRACKER = "mapred.job.tracker";
 
     /**
-     * HDFS File Uploader XML의 JAXB ROOT
+     * HDFS File Uploader XML의 JAXB ROOT Object
      */
     private Flamingo model;
 
@@ -197,6 +197,11 @@ public class JobContextImpl implements JobContext {
      */
     public String getValue(String name) {
         return substituteVars(props, evaluate(name));
+    }
+
+    @Override
+    public Flamingo getModel() {
+        return this.model;
     }
 
     /**

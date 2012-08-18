@@ -17,6 +17,8 @@
  */
 package org.openflamingo.uploader;
 
+import org.openflamingo.uploader.jaxb.Flamingo;
+
 /**
  * HDFS File Uploader Job Context.
  *
@@ -32,5 +34,12 @@ public interface JobContext {
      * @return 이름에 대한 값
      */
     String getValue(String name);
+
+    /**
+     * HDFS File Uploader XML의 JAXB ROOT Object을 반환한다.
+     *
+     * @return HDFS File Uploader XML의 JAXB ROOT Object
+     */
+    Flamingo getModel();
 
 }

@@ -31,7 +31,7 @@ import org.openflamingo.uploader.util.ResourceUtils;
  * @author Edward KIM
  * @since 0.2
  */
-public class LocalHandlerTest {
+public class LocalToHdfsHandlerTest {
 
     @Test
     public void validate() throws Exception {
@@ -46,9 +46,9 @@ public class LocalHandlerTest {
         Flamingo model = (Flamingo) JaxbUtils.unmarshal("org.openflamingo.uploader.jaxb", evaluated);
 
         Job job = model.getJob().get(0);
-        LocalHandler localHandler = new LocalHandler(jobContext, job, job.getPolicy().getIngress().getLocal());
-        localHandler.validate();
-        localHandler.execute();
+        LocalToHdfsHandler localToHdfsHandler = new LocalToHdfsHandler(jobContext, job, job.getPolicy().getIngress().getLocal());
+        localToHdfsHandler.validate();
+        localToHdfsHandler.execute();
     }
 
 }

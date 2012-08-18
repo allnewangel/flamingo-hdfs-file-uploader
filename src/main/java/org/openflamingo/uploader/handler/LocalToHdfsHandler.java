@@ -17,16 +17,17 @@
  */
 package org.openflamingo.uploader.handler;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.openflamingo.uploader.JobContext;
-import org.openflamingo.uploader.jaxb.Job;
-import org.openflamingo.uploader.jaxb.Local;
+import org.openflamingo.uploader.jaxb.*;
 import org.openflamingo.uploader.policy.SelectorPattern;
 import org.openflamingo.uploader.policy.SelectorPatternFactory;
 import org.openflamingo.uploader.util.FileSystemScheme;
 import org.openflamingo.uploader.util.FileUtils;
+import org.openflamingo.uploader.util.JVMIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,18 +44,28 @@ import static org.openflamingo.uploader.util.FileSystemUtils.*;
  * @author Edward KIM
  * @since 0.1
  */
-public class LocalHandler implements Handler {
+public class LocalToHdfsHandler implements Handler {
 
     /**
      * SLF4J Logging
      */
-    private Logger logger = LoggerFactory.getLogger(LocalHandler.class);
+    private Logger logger = LoggerFactory.getLogger(LocalToHdfsHandler.class);
 
     /**
      * 작업중인 파일의 확장자. 작업 디렉토리의 파일 중에서 다음의 확장자를 가진 파일은
      * 현재 타 쓰레드가 작업중인 파일이므로 멀티 쓰레드로 처리하는 경우 타 쓰레드 처리를 위해서 처리하지 않는다.
      */
     public static final String PROCESSING_FILE_QUALIFIER = ".processing";
+
+    /**
+     * HDFS URL에 대한 Hadoop Configuration Key
+     */
+    public final static String HDFS_URL = "fs.default.name";
+
+    /**
+     * Job Tracker에 대한 Hadoop Configuration Key
+     */
+    public final static String JOB_TRACKER = "mapred.job.tracker";
 
     /**
      * HDFS File Uploader Job Context
@@ -71,7 +82,7 @@ public class LocalHandler implements Handler {
      */
     private Local local;
 
-    public LocalHandler(JobContext jobContext, Job job, Local local) {
+    public LocalToHdfsHandler(JobContext jobContext, Job job, Local local) {
         this.jobContext = jobContext;
         this.job = job;
         this.local = local;
@@ -79,12 +90,57 @@ public class LocalHandler implements Handler {
 
     @Override
     public void execute() throws Exception {
+        // 대상 파일을 우선적으로 작업 디렉토리로 이동한다.
         List<FileStatus> inboundFiles = copyToWorkingDirectory();
+
+        // 이동한 작업 디렉토리에 파일 목록을 획득한다.
         List<FileStatus> files = getFilesFromWorkingDirectory();
+
+        // 작업 디렉토리의 파일을 처리중으로 변경하고 HDFS로 업로드한다.
         Iterator<FileStatus> iterator = files.iterator();
         while (iterator.hasNext()) {
             FileStatus fileStatus = iterator.next();
-            System.out.println(fileStatus.getPath());
+
+            // 작업 디렉토리의 파일이 위치한 파일 시스템을 획득한다.
+            FileSystem sourceFS = getFileSystem(fileStatus.getPath());
+
+            // 파일명으로 작업중으로 변경한다.
+            Path processingFile = new Path(fileStatus.getPath().getName() + PROCESSING_FILE_QUALIFIER);
+            boolean rename = sourceFS.rename(fileStatus.getPath(), processingFile);
+            if (rename) {
+                // Outgress의 HDFS 정보를 획득한다.
+                Hdfs hdfs = job.getPolicy().getOutgress().getHdfs();
+
+                // 파일을 업로드할 HDFS의 FileSystem 정보를 획득한다.
+                String cluster = jobContext.getValue(hdfs.getCluster());
+                Configuration configuration = getConfiguration(jobContext.getModel(), cluster);
+                FileSystem targetFS = FileSystem.get(configuration);
+                logger.info("HDFS에 업로드하기 위해서 사용할 Hadoop Cluster '{}'이며 Hadoop Cluster의 파일 시스템을 얻었습니다.", cluster);
+
+                // HDFS의 target, staging 디렉토리를 얻는다.
+                String targetDirectory = jobContext.getValue(hdfs.getTargetPath());
+                String stagingDirectory = jobContext.getValue(hdfs.getStagingPath());
+                logger.info("HDFS에 업로드하기 위해서 사용할 최종 목적지 디렉토리는 '{}'이며 스테이징 디렉토리는 '{}'입니다.", targetDirectory, stagingDirectory);
+
+                // 스테이징 디렉토리에 업로드할 파일의 해쉬코드를 계산한다.
+                int hash = Math.abs((fileStatus.getPath().toString() + processingFile.toString()).hashCode()) + Integer.parseInt(JVMIDUtils.generateUUID());
+                logger.debug("스테이징 디렉토리 '{}'에 업로드할 파일 '{}'의 해쉬 코드 '{}'을 생성했습니다.", new Object[]{
+                    stagingDirectory, processingFile.getName(), hash
+                });
+
+                // 스테이징 디렉토리에 업로드한다.
+                Path stagingFile = new Path(stagingDirectory, String.valueOf(hash));
+                targetFS.copyFromLocalFile(false, false, processingFile, stagingFile);
+                logger.info("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드하였습니다.", processingFile, stagingFile);
+
+                // 스테이징 파일을 최종 목적 디렉토리로 이동한다.
+                Path targetFile = new Path(targetDirectory, FileUtils.getFilename(fileStatus.getPath().getName()));
+                targetFS.rename(stagingFile, targetFile);
+                logger.info("스테이징 디렉토리에 '{}' 파일을 '{}'으로 이동하였습니다.", stagingFile, targetFile);
+
+                // 프로세싱 파일을 완료 디렉토리로 이동한다.
+                // copyToCompleteDirectory(sourceFS.getFileStatus(new Path(fileStatus.getPath().getName() + PROCESSING_FILE_QUALIFIER)));
+            }
         }
     }
 
@@ -115,6 +171,30 @@ public class LocalHandler implements Handler {
         if (local.getCompleteDirectory() != null) {
             testCreateDir(new Path(completeDirectory));
         }
+    }
+
+    /**
+     * Hadoop Cluster의 이름으로 Cluster의 Hadoop Configuration을 생성한다.
+     *
+     * @param model       HDFS File Uploader의 JAXB ROOT Object
+     * @param clusterName Hadoop Cluster명
+     * @return {@link org.apache.hadoop.conf.Configuration}
+     */
+    public static org.apache.hadoop.conf.Configuration getConfiguration(Flamingo model, String clusterName) {
+        org.apache.hadoop.conf.Configuration configuration = new org.apache.hadoop.conf.Configuration();
+        List<Cluster> clusters = model.getClusters().getCluster();
+        for (Cluster cluster : clusters) {
+            if (clusterName.equals(cluster.getName())) {
+                configuration.set(HDFS_URL, cluster.getFsDefaultName());
+                configuration.set(JOB_TRACKER, cluster.getMapredJobTracker());
+
+                List<Property> properties = cluster.getProperties().getProperty();
+                for (Property property : properties) {
+                    configuration.set(property.getName(), property.getValue());
+                }
+            }
+        }
+        return configuration;
     }
 
     /**
@@ -200,21 +280,21 @@ public class LocalHandler implements Handler {
      * @throws IOException 파일을 이동할 수 없는 경우
      */
     public boolean copyToCompleteDirectory(FileStatus fs) throws IOException {
-        String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
+        String workingDirectory = correctPath(local.getWorkingDirectory());
         String completeDirectory = correctPath(local.getCompleteDirectory());
-        FileSystem sourceDirectoryFS = getFileSystem(sourceDirectory);
+        FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
 
-        boolean success;
+        boolean success = false;
         if (local.isRemoveAfterCopy()) {
             logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 삭제합니다." + fs.getPath());
-            success = sourceDirectoryFS.delete(fs.getPath(), false);
+            success = workingDirectoryFS.delete(fs.getPath(), false);
             if (!success) {
                 logger.info("원본 파일 '{}'을 삭제하였습니다.", fs.getPath());
             }
         } else {
             Path completedPath = new Path(completeDirectory, fs.getPath().getName());
             logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 '{}'으로 이동하였습니다.", fs.getPath(), completedPath);
-            success = sourceDirectoryFS.rename(fs.getPath(), completedPath);
+            success = workingDirectoryFS.rename(fs.getPath(), completedPath);
             if (!success) {
                 logger.warn("파일 이동이 완료되지 않았습니다.");
             }
@@ -233,7 +313,6 @@ public class LocalHandler implements Handler {
         String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
         String errorDirectory = correctPath(local.getErrorDirectory());
         FileSystem sourceDirectoryFS = getFileSystem(sourceDirectory);
-
         Path errorPath = new Path(errorDirectory, fs.getPath().getName());
         logger.info("작업 디렉토리에서 파일을 찾았습니다. '{}' 파일을 '{}'으로 이동합니다.", fs.getPath(), errorPath);
         return sourceDirectoryFS.rename(fs.getPath(), errorPath);

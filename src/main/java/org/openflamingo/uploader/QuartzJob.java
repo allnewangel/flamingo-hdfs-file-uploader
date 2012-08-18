@@ -1,6 +1,6 @@
 package org.openflamingo.uploader;
 
-import org.openflamingo.uploader.handler.LocalHandler;
+import org.openflamingo.uploader.handler.LocalToHdfsHandler;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.Local;
 import org.openflamingo.uploader.util.DateUtils;
@@ -63,10 +63,10 @@ public class QuartzJob implements Job {
         logger.info("--------------------------------------------");
         if (job.getPolicy().getIngress().getLocal() != null) {
             Local local = job.getPolicy().getIngress().getLocal();
-            LocalHandler localHandler = new LocalHandler(jobContext, job, local);
-            localHandler.validate();
+            LocalToHdfsHandler localToHdfsHandler = new LocalToHdfsHandler(jobContext, job, local);
+            localToHdfsHandler.validate();
             try {
-                localHandler.execute();
+                localToHdfsHandler.execute();
             } catch (Exception ex) {
                 throw new JobExecutionException("핸들러를 실행하던 도중 예외가 발생하여 Quartz Job이 실패하였습니다.", ex, false);
             }
