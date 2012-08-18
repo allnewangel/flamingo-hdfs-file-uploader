@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flamingo xmlns="http://www.openflamingo.org/schema/uploader"
+          xsi:schemaLocation="http://www.openflamingo.org/schema/uploader flamingo-uploader-1.0.xsd"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<description>서울시 공공 데이터 배치 업로드</description>
+
+	<clusters>
+		<cluster name="dev" description="개발 클러스터">
+			<fs.default.name>hdfs://localhost:9000</fs.default.name>
+			<mapred.job.tracker>localhost:9001</mapred.job.tracker>
+			<properties>
+				<property name="mapred.maximum.map.task" value="100"/>
+			</properties>
+		</cluster>
+	</clusters>
+
+	<globalVariables>
+		<globalVariable name="currentDate" value="${dateFormat('yyyyMMdd')}" description="string"/>
+	</globalVariables>
+
+	<job name="Seoul_Rain" description="서울시 공공 데이터 - 강수량 데이터 수집 Job">
+		<schedule>
+			<cronExpression>* 1 * * * ?</cronExpression>
+			<start datePattern="yyyyMMdd" date="${currentDate}"/>
+			<end datePattern="yyyyMMdd" date="${tommorow('yyyyMMdd')}"/>
+		</schedule>
+		<policy>
+			<ingress>
+				<local>
+					<sourceDirectory conditionType="antPattern">
+						<path>/tmp/sluper/in</path>
+						<condition>rain_*.txt</condition>
+					</sourceDirectory>
+					<workingDirectory>/tmp/sluper/work</workingDirectory>
+					<completeDirectory>/tmp/sluper/complete</completeDirectory>
+					<removeAfterCopy>false</removeAfterCopy>
+					<errorDirectory>/tmp/sluper/work</errorDirectory>
+				</local>
+			</ingress>
+			<outgress>
+				<hdfs cluster="dev">
+					<targetPath>/kimbyounggon/target</targetPath>
+					<stagingPath>/kimbyounggon/staging</stagingPath>
+				</hdfs>
+			</outgress>
+		</policy>
+	</job>
+</flamingo>

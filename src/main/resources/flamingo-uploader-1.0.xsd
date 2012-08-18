@@ -144,11 +144,11 @@
 	<!-- HDFS -->
 	<xsd:element name="hdfs">
 		<xsd:complexType>
-			<xsd:choice>
+			<xsd:sequence>
 				<xsd:element name="targetPath" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="stagingPath" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="selector" minOccurs="0" maxOccurs="1"/>
-			</xsd:choice>
+			</xsd:sequence>
 			<xsd:attribute name="cluster" type="xsd:string"/>
 			<xsd:attribute name="description" type="xsd:string"/>
 		</xsd:complexType>

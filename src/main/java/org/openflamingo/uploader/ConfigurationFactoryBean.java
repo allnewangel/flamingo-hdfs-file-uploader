@@ -64,7 +64,7 @@ public class ConfigurationFactoryBean implements InitializingBean, FactoryBean<F
             logger.info("'-Dflamingo.uploader.xml={}'으로 지정한 설정 파일을 사용합니다.", System.getProperty("flamingo.uploader.xml"));
             configurationFile = ResourceUtils.getResource(System.getProperty("flamingo.uploader.xml"));
         } else {
-            configurationFile = new ClassPathResource("classpath:job.xml");
+            configurationFile = new ClassPathResource("classpath:rain.xml");
         }
 
         String xml = ResourceUtils.getResourceTextContents(configurationFile);
