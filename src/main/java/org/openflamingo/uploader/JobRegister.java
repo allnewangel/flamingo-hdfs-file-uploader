@@ -46,6 +46,9 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
     @Autowired
     private ELService elService;
 
+    @Autowired
+    private Flamingo model;
+
     /**
      * Spring Framework Application Context
      */
@@ -56,9 +59,9 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
         logger.info("Flamingo HDFS File Uploader Job 등록을 시작합니다.");
 
         String xml = ResourceUtils.getResourceTextContents("classpath:job.xml");
-        logger.debug("Uploader Job이 등록되어 있는 XML 파일을 로딩하였습니다.\n{}", xml);
 
         Flamingo model = (Flamingo) JaxbUtils.unmarshal("org.openflamingo.uploader.jaxb", xml);
+        logger.debug("Uploader Job이 등록되어 있는 XML 파일을 로딩하였습니다.\n{}", xml);
         logger.info("job.xml 파일을 CLASSPATH에서 로딩하였습니다.");
 
         JobContext jobContext = new JobContextImpl(model, getEvaluator(model, elService));
