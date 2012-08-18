@@ -27,8 +27,10 @@ public interface Handler {
 
     /**
      * 핸들러를 실행한다.
+     *
+     * @throws Exception 핸들러가 정상적으로 실행할 수 없는 경우
      */
-    void execute();
+    void execute() throws Exception;
 
     /**
      * 동작을 위한 기본 조건이 준비되었는지 검증한다.

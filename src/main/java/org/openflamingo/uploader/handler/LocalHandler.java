@@ -23,11 +23,17 @@ import org.apache.hadoop.fs.Path;
 import org.openflamingo.uploader.JobContext;
 import org.openflamingo.uploader.jaxb.Job;
 import org.openflamingo.uploader.jaxb.Local;
+import org.openflamingo.uploader.policy.SelectorPattern;
+import org.openflamingo.uploader.policy.SelectorPatternFactory;
 import org.openflamingo.uploader.util.FileSystemScheme;
+import org.openflamingo.uploader.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.openflamingo.uploader.util.FileSystemUtils.*;
 
@@ -66,8 +72,13 @@ public class LocalHandler implements Handler {
     }
 
     @Override
-    public void execute() {
-
+    public void execute() throws Exception {
+        List<FileStatus> inboundFiles = copyToWorkingDirectory();
+        Iterator<FileStatus> iterator = inboundFiles.iterator();
+        while (iterator.hasNext()) {
+            FileStatus fileStatus = iterator.next();
+            System.out.println(fileStatus);
+        }
     }
 
     @Override
@@ -105,29 +116,38 @@ public class LocalHandler implements Handler {
      * @return 작업 디렉토리의 파일(파일이 존재하지 않는 경우 null)
      * @throws IOException 파일 시스템에 접근할 수 없거나, 파일을 이동할 수 없는 경우
      */
-    public FileStatus getInboundFile() throws IOException {
+    public List<FileStatus> copyToWorkingDirectory() throws IOException {
+        SelectorPattern selectorPattern = SelectorPatternFactory.getSelectorPattern(this.local.getSourceDirectory().getConditionType(), jobContext.getValue(this.local.getSourceDirectory().getCondition()), jobContext);
         String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
         String workingDirectory = correctPath(local.getWorkingDirectory());
 
         FileSystem sourceDirectoryFS = getFileSystem(sourceDirectory);
+        List<FileStatus> files = new LinkedList<FileStatus>();
         for (FileStatus fs : sourceDirectoryFS.listStatus(new Path(sourceDirectory))) {
             if (!fs.isDir()) {
-                if (fs.getPath().getName().startsWith(".")
-                    || fs.getPath().getName().startsWith("_")
-                    || fs.getPath().getName().endsWith(".work")) {
+                if (fs.getPath().getName().startsWith(".") || fs.getPath().getName().startsWith("_") || fs.getPath().getName().endsWith(".work")) {
                     logger.info("숨김 파일 '{}'은 처리하지 않고 넘어갑니다.", fs.getPath());
                     continue;
                 }
-                // 파일을 작업 디렉토리로 이동한다.
-                Path workPath = new Path(workingDirectory, fs.getPath().getName());
-                sourceDirectoryFS.rename(fs.getPath(), workPath);
-
-                return sourceDirectoryFS.getFileStatus(workPath);
+                if (selectorPattern.accept(FileUtils.getFilename(fs.getPath().getName()))) {
+                    // 파일을 작업 디렉토리로 이동한다.
+                    Path workPath = new Path(workingDirectory, fs.getPath().getName());
+                    sourceDirectoryFS.rename(fs.getPath(), workPath);
+                    logger.info("원본 파일 '{}'을 작업 디렉토리 '{}'으로 이동하였습니다.", fs.getPath(), workPath);
+                    files.add(sourceDirectoryFS.getFileStatus(workPath));
+                }
             }
         }
-        return null;
+        return files;
     }
 
+    /**
+     * 파일을 완료 디렉토리로 이동한다.
+     *
+     * @param fs 파일
+     * @return 정상적으로 완료되었다면 <tt>true</tt>
+     * @throws IOException 파일을 이동할 수 없는 경우
+     */
     public boolean copyToCompleteDirectory(FileStatus fs) throws IOException {
         String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
         String completeDirectory = correctPath(local.getCompleteDirectory());
@@ -151,7 +171,14 @@ public class LocalHandler implements Handler {
         return success;
     }
 
-    public boolean copyToErrorDirectory(FileStatus fs) throws IOException, InterruptedException {
+    /**
+     * 파일을 에러 디렉토리로 이동한다.
+     *
+     * @param fs 파일
+     * @return 정상적으로 완료되었다면 <tt>true</tt>
+     * @throws IOException 파일을 이동할 수 없는 경우
+     */
+    public boolean copyToErrorDirectory(FileStatus fs) throws IOException {
         String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
         String errorDirectory = correctPath(local.getErrorDirectory());
         FileSystem sourceDirectoryFS = getFileSystem(sourceDirectory);

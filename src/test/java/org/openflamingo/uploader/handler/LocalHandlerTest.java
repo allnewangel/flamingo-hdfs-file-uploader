@@ -48,6 +48,7 @@ public class LocalHandlerTest {
         Job job = model.getJob().get(0);
         LocalHandler localHandler = new LocalHandler(jobContext, job, job.getPolicy().getIngress().getLocal());
         localHandler.validate();
+        localHandler.execute();
     }
 
 }

@@ -65,7 +65,11 @@ public class QuartzJob implements Job {
             Local local = job.getPolicy().getIngress().getLocal();
             LocalHandler localHandler = new LocalHandler(jobContext, job, local);
             localHandler.validate();
-            localHandler.execute();
+            try {
+                localHandler.execute();
+            } catch (Exception ex) {
+                throw new JobExecutionException("핸들러를 실행하던 도중 예외가 발생하여 Quartz Job이 실패하였습니다.", ex, false);
+            }
         }
 
         try {
