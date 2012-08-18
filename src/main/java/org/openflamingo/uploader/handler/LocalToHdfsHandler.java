@@ -99,15 +99,16 @@ public class LocalToHdfsHandler implements Handler {
         // 작업 디렉토리의 파일을 처리중으로 변경하고 HDFS로 업로드한다.
         Iterator<FileStatus> iterator = files.iterator();
         while (iterator.hasNext()) {
-            FileStatus fileStatus = iterator.next();
-
             // 작업 디렉토리의 파일이 위치한 파일 시스템을 획득한다.
-            FileSystem sourceFS = getFileSystem(fileStatus.getPath());
+            FileStatus workingFile = iterator.next();
+            FileSystem workingFS = getFileSystem(workingFile.getPath());
 
-            // 파일명으로 작업중으로 변경한다.
-            Path processingFile = new Path(fileStatus.getPath().getName() + PROCESSING_FILE_QUALIFIER);
-            boolean rename = sourceFS.rename(fileStatus.getPath(), processingFile);
-            if (rename) {
+            //작업 디렉토리의 파일명을 작업중으로 변경한다.
+            Path processingFile = new Path(workingFile.getPath().getName() + PROCESSING_FILE_QUALIFIER);
+            boolean renamed = workingFS.rename(workingFile.getPath(), processingFile);
+            logger.debug("작업 디렉토리의 파일 '{}'을 '{}'으로 파일명을 변경하여 작업중으로 변경합니다.", workingFile.getPath().getName(), workingFile.getPath().getName() + PROCESSING_FILE_QUALIFIER);
+
+            if (renamed) {
                 // Outgress의 HDFS 정보를 획득한다.
                 Hdfs hdfs = job.getPolicy().getOutgress().getHdfs();
 
@@ -123,23 +124,29 @@ public class LocalToHdfsHandler implements Handler {
                 logger.info("HDFS에 업로드하기 위해서 사용할 최종 목적지 디렉토리는 '{}'이며 스테이징 디렉토리는 '{}'입니다.", targetDirectory, stagingDirectory);
 
                 // 스테이징 디렉토리에 업로드할 파일의 해쉬코드를 계산한다.
-                int hash = Math.abs((fileStatus.getPath().toString() + processingFile.toString()).hashCode()) + Integer.parseInt(JVMIDUtils.generateUUID());
+                int hash = Math.abs((workingFile.getPath().toString() + processingFile.toString()).hashCode()) + Integer.parseInt(JVMIDUtils.generateUUID());
                 logger.debug("스테이징 디렉토리 '{}'에 업로드할 파일 '{}'의 해쉬 코드 '{}'을 생성했습니다.", new Object[]{
                     stagingDirectory, processingFile.getName(), hash
                 });
 
                 // 스테이징 디렉토리에 업로드한다.
                 Path stagingFile = new Path(stagingDirectory, String.valueOf(hash));
-                targetFS.copyFromLocalFile(false, false, processingFile, stagingFile);
+                try {
+                    targetFS.copyFromLocalFile(false, false, processingFile, stagingFile);
+                } catch (Exception ex) {
+                    logger.warn("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드 하지 못하여 에러 디렉토리로 이동시킵니다.", processingFile, stagingFile);
+                    copyToErrorDirectory(workingFile);
+                    return;
+                }
                 logger.info("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드하였습니다.", processingFile, stagingFile);
 
                 // 스테이징 파일을 최종 목적 디렉토리로 이동한다.
-                Path targetFile = new Path(targetDirectory, FileUtils.getFilename(fileStatus.getPath().getName()));
+                Path targetFile = new Path(targetDirectory, workingFile.getPath().getName());
                 targetFS.rename(stagingFile, targetFile);
                 logger.info("스테이징 디렉토리에 '{}' 파일을 '{}'으로 이동하였습니다.", stagingFile, targetFile);
 
                 // 프로세싱 파일을 완료 디렉토리로 이동한다.
-                // copyToCompleteDirectory(sourceFS.getFileStatus(new Path(fileStatus.getPath().getName() + PROCESSING_FILE_QUALIFIER)));
+                copyToCompleteDirectory(workingFile);
             }
         }
     }
@@ -275,26 +282,26 @@ public class LocalToHdfsHandler implements Handler {
     /**
      * 파일을 완료 디렉토리로 이동한다.
      *
-     * @param fs 파일
+     * @param fileToMove 파일
      * @return 정상적으로 완료되었다면 <tt>true</tt>
      * @throws IOException 파일을 이동할 수 없는 경우
      */
-    public boolean copyToCompleteDirectory(FileStatus fs) throws IOException {
+    public boolean copyToCompleteDirectory(FileStatus fileToMove) throws IOException {
         String workingDirectory = correctPath(local.getWorkingDirectory());
         String completeDirectory = correctPath(local.getCompleteDirectory());
         FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
 
         boolean success = false;
         if (local.isRemoveAfterCopy()) {
-            logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 삭제합니다." + fs.getPath());
-            success = workingDirectoryFS.delete(fs.getPath(), false);
+            logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 삭제합니다." + fileToMove.getPath());
+            success = workingDirectoryFS.delete(fileToMove.getPath(), false);
             if (!success) {
-                logger.info("원본 파일 '{}'을 삭제하였습니다.", fs.getPath());
+                logger.info("원본 파일 '{}'을 삭제하였습니다.", fileToMove.getPath());
             }
         } else {
-            Path completedPath = new Path(completeDirectory, fs.getPath().getName());
-            logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 '{}'으로 이동하였습니다.", fs.getPath(), completedPath);
-            success = workingDirectoryFS.rename(fs.getPath(), completedPath);
+            Path completedPath = new Path(completeDirectory, fileToMove.getPath().getName().replaceAll(PROCESSING_FILE_QUALIFIER, ""));
+            logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 '{}'으로 이동하였습니다.", fileToMove.getPath(), completedPath);
+            success = workingDirectoryFS.rename(fileToMove.getPath(), completedPath);
             if (!success) {
                 logger.warn("파일 이동이 완료되지 않았습니다.");
             }
@@ -310,11 +317,14 @@ public class LocalToHdfsHandler implements Handler {
      * @throws IOException 파일을 이동할 수 없는 경우
      */
     public boolean copyToErrorDirectory(FileStatus fs) throws IOException {
-        String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
+        String workingDirectory = correctPath(local.getWorkingDirectory());
         String errorDirectory = correctPath(local.getErrorDirectory());
-        FileSystem sourceDirectoryFS = getFileSystem(sourceDirectory);
-        Path errorPath = new Path(errorDirectory, fs.getPath().getName());
-        logger.info("작업 디렉토리에서 파일을 찾았습니다. '{}' 파일을 '{}'으로 이동합니다.", fs.getPath(), errorPath);
-        return sourceDirectoryFS.rename(fs.getPath(), errorPath);
+        FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
+        if (fs.getPath().getName().endsWith(PROCESSING_FILE_QUALIFIER)) {
+            Path errorPath = new Path(errorDirectory, fs.getPath().getName().replaceAll(PROCESSING_FILE_QUALIFIER, ""));
+            logger.info("작업 디렉토리에서 파일을 찾았습니다. '{}' 파일을 '{}'으로 이동합니다.", fs.getPath(), errorPath);
+            return workingDirectoryFS.rename(fs.getPath(), errorPath);
+        }
+        return false;
     }
 }
