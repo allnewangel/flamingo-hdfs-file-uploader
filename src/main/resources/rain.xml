@@ -29,19 +29,19 @@
 			<ingress>
 				<local>
 					<sourceDirectory conditionType="antPattern">
-						<path>/tmp/slurper/in</path>
+						<path>/root/kimbyounggon/rain</path>
 						<condition>rain_*.txt</condition>
 					</sourceDirectory>
 					<workingDirectory>/tmp/slurper/work</workingDirectory>
 					<completeDirectory>/tmp/slurper/complete</completeDirectory>
 					<removeAfterCopy>false</removeAfterCopy>
-					<errorDirectory>/tmp/slurper/work</errorDirectory>
+					<errorDirectory>/tmp/slurper/error</errorDirectory>
 				</local>
 			</ingress>
 			<outgress>
 				<hdfs cluster="dev">
-					<targetPath>/kimbyounggon/target</targetPath>
-					<stagingPath>/kimbyounggon/staging</stagingPath>
+					<targetPath>/rain</targetPath>
+					<stagingPath>/tmp/slurper/stage</stagingPath>
 				</hdfs>
 			</outgress>
 		</policy>
