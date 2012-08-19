@@ -28,7 +28,7 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
      - HDFS
        o Staging Directory -> Target Directory
 
-[Job XML example]
+[Example]
 
   <?xml version="1.0" encoding="UTF-8"?>
   <flamingo xmlns="http://www.openflamingo.org/schema/uploader"
