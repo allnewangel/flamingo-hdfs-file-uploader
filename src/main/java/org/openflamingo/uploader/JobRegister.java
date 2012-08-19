@@ -107,7 +107,7 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
                 logger.info("시작 날짜 및 종료 날짜가 설정되어 있습니다.");
                 startJob(jobContext, job.getName(), job.getName(), cronExpression, start, end, misfireInstruction, triggerPriority, timezone, dataMap);
             }
-            logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 스케줄링이 진행됩니다.");
+            logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 Uploader Job이 진행됩니다.");
         }
     }
 
