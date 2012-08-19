@@ -24,6 +24,8 @@ import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.Job;
 import org.openflamingo.uploader.util.JaxbUtils;
 import org.openflamingo.uploader.util.ResourceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Local FileSystem Ingress Handler의 단위 테스트 케이스.
@@ -35,6 +37,9 @@ public class LocalToHdfsHandlerTest {
 
     @Test
     public void validate() throws Exception {
+
+        Logger logger = LoggerFactory.getLogger(LocalToHdfsHandlerTest.class);
+
         String xml = ResourceUtils.getResourceTextContents("classpath:org/openflamingo/uploader/handler/local.xml");
 
         ELEvaluator evaluator = new ELEvaluator();
@@ -46,7 +51,7 @@ public class LocalToHdfsHandlerTest {
         Flamingo model = (Flamingo) JaxbUtils.unmarshal("org.openflamingo.uploader.jaxb", evaluated);
 
         Job job = model.getJob().get(0);
-        LocalToHdfsHandler localToHdfsHandler = new LocalToHdfsHandler(jobContext, job, job.getPolicy().getIngress().getLocal());
+        LocalToHdfsHandler localToHdfsHandler = new LocalToHdfsHandler(jobContext, job, job.getPolicy().getIngress().getLocal(), logger);
         localToHdfsHandler.validate();
         localToHdfsHandler.execute();
     }
