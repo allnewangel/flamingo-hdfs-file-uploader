@@ -50,15 +50,15 @@ import static org.openflamingo.uploader.util.FileSystemUtils.*;
 public class LocalToHdfsHandler implements Handler {
 
     /**
-     *
+     * Job Logger
      */
-    private Logger jobLogger = null;
+    private Logger jobLogger;
 
     /**
      * 작업중인 파일의 확장자. 작업 디렉토리의 파일 중에서 다음의 확장자를 가진 파일은
      * 현재 타 쓰레드가 작업중인 파일이므로 멀티 쓰레드로 처리하는 경우 타 쓰레드 처리를 위해서 처리하지 않는다.
      */
-    public static final String PROCESSING_FILE_QUALIFIER = ".processing";
+    public static final String PROCESSING_FILE_QUALIFIER = ".processing"; // FIXME
 
     /**
      * HDFS URL에 대한 Hadoop Configuration Key
@@ -103,7 +103,7 @@ public class LocalToHdfsHandler implements Handler {
     @Override
     public void execute() throws Exception {
         // 대상 파일을 우선적으로 작업 디렉토리로 이동한다.
-        List<FileStatus> inboundFiles = copyToWorkingDirectory();
+        copyToWorkingDirectory();
 
         // 이동한 작업 디렉토리에 파일 목록을 획득한다.
         List<FileStatus> files = getFilesFromWorkingDirectory();
@@ -292,7 +292,7 @@ public class LocalToHdfsHandler implements Handler {
         List<FileStatus> files = new LinkedList<FileStatus>();
         for (FileStatus fs : workingDirectoryFS.listStatus(new Path(workingDirectory))) {
             if (!fs.isDir()) {
-                if (fs.getPath().getName().endsWith(".processing")) {
+                if (fs.getPath().getName().endsWith(PROCESSING_FILE_QUALIFIER)) {
                     jobLogger.info("'{}' 파일을 현재 작업중인 파일이므로 무시합니다", fs.getPath());
                     continue;
                 }
