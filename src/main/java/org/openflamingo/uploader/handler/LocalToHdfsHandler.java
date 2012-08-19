@@ -153,6 +153,10 @@ public class LocalToHdfsHandler implements Handler {
 
     @Override
     public void validate() {
+        /////////////////////////////////
+        // Ingress :: Local FileSystem
+        /////////////////////////////////
+
         String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
         String workingDirectory = correctPath(local.getWorkingDirectory());
         String errorDirectory = correctPath(local.getErrorDirectory());
@@ -178,6 +182,23 @@ public class LocalToHdfsHandler implements Handler {
         if (local.getCompleteDirectory() != null) {
             testCreateDir(new Path(completeDirectory));
         }
+
+        /////////////////////////////////
+        // Outgrss :: HDFS
+        /////////////////////////////////
+
+        String cluster = jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getCluster());
+        Configuration configuration = this.getConfiguration(jobContext.getModel(), cluster);
+        String stagingPath = configuration.get(HDFS_URL) + "/" + jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getStagingPath());
+        String targetPath = configuration.get(HDFS_URL) + "/" + jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getTargetPath());
+
+        checkScheme(stagingPath, FileSystemScheme.HDFS);
+        checkScheme(targetPath, FileSystemScheme.HDFS);
+
+        validateSameFileSystem(targetPath, stagingPath);
+
+        testCreateDir(new Path(stagingPath));
+        testCreateDir(new Path(targetPath));
     }
 
     /**
