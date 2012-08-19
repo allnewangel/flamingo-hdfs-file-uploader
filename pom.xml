@@ -47,7 +47,6 @@
 		<javax.jsp.version>2.1</javax.jsp.version>
 		<javax.persistence.version>1.0</javax.persistence.version>
 		<jaxb.version>2.1.13</jaxb.version>
-		<eclipselink.version>2.3.2</eclipselink.version>
 		<javassist.version>3.12.0.GA</javassist.version>
 		<spring.version>3.1.1.RELEASE</spring.version>
 		<aopalliance.version>1.0</aopalliance.version>
@@ -238,7 +237,7 @@
 					<execution>
 						<id>client</id>
 						<configuration>
-							<descriptor>${basedir}/src/main/assembly/client.xml</descriptor>
+							<descriptor>${basedir}/src/main/assembly/src.xml</descriptor>
 						</configuration>
 						<goals>
 							<goal>assembly</goal>
@@ -436,30 +435,6 @@
 			<version>${jaxb.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>org.eclipse.persistence.core</artifactId>
-			<version>${eclipselink.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>org.eclipse.persistence.asm</artifactId>
-			<version>${eclipselink.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>org.eclipse.persistence.antlr</artifactId>
-			<version>${eclipselink.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>org.eclipse.persistence.moxy</artifactId>
-			<version>${eclipselink.version}</version>
-		</dependency>
-
 		<!-- ===================== -->
 		<!--  Jakarta Commons API  -->
 		<!-- ===================== -->
@@ -477,21 +452,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-exec</artifactId>
-			<version>${commons.exec.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>${commons.io.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-cli</groupId>
-			<artifactId>commons-cli</artifactId>
-			<version>${commons.cli.version}</version>
 		</dependency>
 
 		<!-- ============= -->
@@ -596,17 +559,6 @@
 				<enabled>true</enabled>
 			</releases>
 		</repository>
-		<repository>
-			<id>eclipselink</id>
-			<name>EclipseLink Repo</name>
-			<url>http://www.eclipse.org/downloads/download.php?r=1&amp;nf=1&amp;file=/rt/eclipselink/maven.repo/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -621,12 +573,25 @@
 				<enabled>true</enabled>
 			</releases>
 		</pluginRepository>
-		<pluginRepository>
-			<id>maven2-plugin-repository.maven.apache.org</id>
-			<name>maven.org Plugin Repository for Maven</name>
-			<url>http://repo1.maven.org/maven2/org/apache/maven/plugins/</url>
-			<layout>default</layout>
-		</pluginRepository>
 	</pluginRepositories>
 
+	<developers>
+		<developer>
+			<id>fharenheit</id>
+			<name>Edward KIM</name>
+			<url>https://www.facebook.com/JBossUserGroup</url>
+			<email>fharenheit@gmail.com</email>
+			<roles>
+				<role>Commiter</role>
+			</roles>
+			<timezone>Asia/Seoul</timezone>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>The GNU General Public License v3.0</name>
+			<url>http://www.gnu.org/copyleft/gpl.html</url>
+		</license>
+	</licenses>
 </project>
