@@ -38,8 +38,8 @@
 			</ingress>
 			<outgress>
 				<hdfs cluster="dev">
-					<targetPath>/rain/upload/${dateFormat('yyyy')}/${dateFormat('MM')}/${dateFormat('dd')}</targetPath>
-					<stagingPath>/rain/stage/${currentDate}</stagingPath>
+					<targetPath>/rain/upload/${user.name}/${dateFormat('yyyy')}/${dateFormat('MM')}/${dateFormat('dd')}</targetPath>
+					<stagingPath>/rain/stage/${user.name}/${currentDate}</stagingPath>
 				</hdfs>
 			</outgress>
 		</policy>
