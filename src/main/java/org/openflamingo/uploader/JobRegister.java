@@ -298,7 +298,6 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 
             CronTrigger trigger = triggerBuilder.build();
             scheduler.scheduleJob(job, trigger);
-            logger.info("Job '{}' Group '{}' 으로 배치 작업 등록이 완료되었습니다. 작업이 등록되면 해당 시간에 즉시 동작하게 됩니다.", jobName, jobGroupName);
             return jobKey;
         } catch (SchedulerException e) {
             throw new SystemException(ExceptionUtils.getMessage("Job '{}' 을 스케줄러에 등록할 수 없습니다.", jobName, jobGroupName), e);
