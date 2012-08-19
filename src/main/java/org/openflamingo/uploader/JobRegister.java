@@ -298,7 +298,7 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             setMisfireInstruction(schedBuilder, misfireInstruction);
             setTimezone(jobContext, schedBuilder, timezone);
 
-            SimpleTrigger trigger = (SimpleTrigger) TriggerBuilder.newTrigger()
+            CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger()
                 .withIdentity(jobName, jobGroupName)
                 .withSchedule(schedBuilder)
                 .withPriority(getTriggerPriority(triggerPriority))
