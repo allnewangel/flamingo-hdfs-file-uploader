@@ -29,13 +29,13 @@
 			<ingress>
 				<local>
 					<sourceDirectory conditionType="antPattern">
-						<path>/tmp/sluper/in</path>
+						<path>/tmp/slurper/in</path>
 						<condition>rain_*.txt</condition>
 					</sourceDirectory>
-					<workingDirectory>/tmp/sluper/work</workingDirectory>
-					<completeDirectory>/tmp/sluper/complete</completeDirectory>
+					<workingDirectory>/tmp/slurper/work</workingDirectory>
+					<completeDirectory>/tmp/slurper/complete</completeDirectory>
 					<removeAfterCopy>false</removeAfterCopy>
-					<errorDirectory>/tmp/sluper/work</errorDirectory>
+					<errorDirectory>/tmp/slurper/work</errorDirectory>
 				</local>
 			</ingress>
 			<outgress>
