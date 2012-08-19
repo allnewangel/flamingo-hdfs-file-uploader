@@ -144,6 +144,7 @@ public class LocalToHdfsHandler implements Handler {
 
                 // 스테이징 디렉토리에 업로드할 파일의 해쉬코드를 계산한다.
                 int hash = Math.abs((workingFile.getPath().toString() + processingFile.toString()).hashCode()) + Integer.parseInt(JVMIDUtils.generateUUID());
+                if(hash < 0) hash = -hash;
                 jobLogger.debug("스테이징 디렉토리 '{}'에 업로드할 파일 '{}'의 해쉬 코드 '{}'을 생성했습니다.", new Object[]{
                     stagingDirectory, processingFile.getName(), hash
                 });
