@@ -21,7 +21,7 @@
 
 	<job name="Seoul_Rain" description="서울시 공공 데이터 - 강수량 데이터 수집 Job">
 		<schedule>
-			<cronExpression>* 1 * * * ?</cronExpression>
+			<cronExpression>0 1 * * * ?</cronExpression>
 		</schedule>
 		<policy>
 			<ingress>
