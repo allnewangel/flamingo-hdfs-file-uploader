@@ -17,6 +17,7 @@
  */
 package org.openflamingo.uploader.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -49,9 +50,9 @@ import static org.openflamingo.uploader.util.FileSystemUtils.*;
 public class LocalToHdfsHandler implements Handler {
 
     /**
-     * SLF4J Logging
+     *
      */
-    private Logger logger = LoggerFactory.getLogger(LocalToHdfsHandler.class);
+    private Logger jobLogger = null;
 
     /**
      * 작업중인 파일의 확장자. 작업 디렉토리의 파일 중에서 다음의 확장자를 가진 파일은
@@ -99,6 +100,9 @@ public class LocalToHdfsHandler implements Handler {
 
     @Override
     public void execute() throws Exception {
+        // Job Logger
+        jobLogger = LoggerFactory.getLogger(StringUtils.remove(job.getName(), " ") + "_" + JVMIDUtils.generateUUID());
+
         // 대상 파일을 우선적으로 작업 디렉토리로 이동한다.
         List<FileStatus> inboundFiles = copyToWorkingDirectory();
 
@@ -117,7 +121,7 @@ public class LocalToHdfsHandler implements Handler {
             String workingDirectory = correctPath(local.getWorkingDirectory());
             Path processingFile = new Path(workingDirectory, processingFileName);
             boolean renamed = workingFS.rename(workingFile.getPath(), processingFile);
-            logger.debug("작업 디렉토리의 파일 '{}'을 '{}'으로 파일명을 변경하여 작업중으로 변경했습니다.", workingFile.getPath(), processingFile);
+            jobLogger.debug("작업 디렉토리의 파일 '{}'을 '{}'으로 파일명을 변경하여 작업중으로 변경했습니다.", workingFile.getPath(), processingFile);
 
             if (renamed) {
                 // Outgress의 HDFS 정보를 획득한다.
@@ -127,16 +131,16 @@ public class LocalToHdfsHandler implements Handler {
                 String cluster = jobContext.getValue(hdfs.getCluster());
                 Configuration configuration = getConfiguration(jobContext.getModel(), cluster);
                 FileSystem targetFS = FileSystem.get(configuration);
-                logger.info("HDFS에 업로드하기 위해서 사용할 Hadoop Cluster '{}'이며 Hadoop Cluster의 파일 시스템을 얻었습니다.", cluster);
+                jobLogger.info("HDFS에 업로드하기 위해서 사용할 Hadoop Cluster '{}'이며 Hadoop Cluster의 파일 시스템을 얻었습니다.", cluster);
 
                 // HDFS의 target, staging 디렉토리를 얻는다.
                 String targetDirectory = jobContext.getValue(hdfs.getTargetPath());
                 String stagingDirectory = jobContext.getValue(hdfs.getStagingPath());
-                logger.info("HDFS에 업로드하기 위해서 사용할 최종 목적지 디렉토리는 '{}'이며 스테이징 디렉토리는 '{}'입니다.", targetDirectory, stagingDirectory);
+                jobLogger.info("HDFS에 업로드하기 위해서 사용할 최종 목적지 디렉토리는 '{}'이며 스테이징 디렉토리는 '{}'입니다.", targetDirectory, stagingDirectory);
 
                 // 스테이징 디렉토리에 업로드할 파일의 해쉬코드를 계산한다.
                 int hash = Math.abs((workingFile.getPath().toString() + processingFile.toString()).hashCode()) + Integer.parseInt(JVMIDUtils.generateUUID());
-                logger.debug("스테이징 디렉토리 '{}'에 업로드할 파일 '{}'의 해쉬 코드 '{}'을 생성했습니다.", new Object[]{
+                jobLogger.debug("스테이징 디렉토리 '{}'에 업로드할 파일 '{}'의 해쉬 코드 '{}'을 생성했습니다.", new Object[]{
                     stagingDirectory, processingFile.getName(), hash
                 });
 
@@ -145,16 +149,16 @@ public class LocalToHdfsHandler implements Handler {
                 try {
                     targetFS.copyFromLocalFile(false, false, processingFile, stagingFile);
                 } catch (Exception ex) {
-                    logger.warn("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드 하지 못하여 에러 디렉토리로 이동시킵니다.", processingFile, stagingFile);
+                    jobLogger.warn("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드 하지 못하여 에러 디렉토리로 이동시킵니다.", processingFile, stagingFile);
                     copyToErrorDirectory(workingFile);
                     continue;
                 }
-                logger.info("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드하였습니다.", processingFile, stagingFile);
+                jobLogger.info("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드하였습니다.", processingFile, stagingFile);
 
                 // 스테이징 파일을 최종 목적 디렉토리로 이동한다.
                 Path targetFile = new Path(targetDirectory, workingFile.getPath().getName());
                 targetFS.rename(stagingFile, targetFile);
-                logger.info("스테이징 디렉토리에 '{}' 파일을 '{}'으로 이동하였습니다.", stagingFile, targetFile);
+                jobLogger.info("스테이징 디렉토리에 '{}' 파일을 '{}'으로 이동하였습니다.", stagingFile, targetFile);
 
                 // 프로세싱 파일을 완료 디렉토리로 이동한다.
                 copyToCompleteDirectory(workingFS.getFileStatus(processingFile));
@@ -254,14 +258,14 @@ public class LocalToHdfsHandler implements Handler {
         for (FileStatus sourceFile : sourceDirectoryFS.listStatus(new Path(sourceDirectory))) {
             if (!sourceFile.isDir()) {
                 if (sourceFile.getPath().getName().startsWith(".") || sourceFile.getPath().getName().startsWith("_") || sourceFile.getPath().getName().endsWith(".work")) {
-                    logger.info("숨김 파일 '{}'은 처리하지 않고 넘어갑니다.", sourceFile.getPath());
+                    jobLogger.info("숨김 파일 '{}'은 처리하지 않고 넘어갑니다.", sourceFile.getPath());
                     continue;
                 }
                 if (selectorPattern.accept(FileUtils.getFilename(sourceFile.getPath().getName()))) {
                     // 파일을 작업 디렉토리로 이동한다.
                     Path workPath = new Path(workingDirectory, sourceFile.getPath().getName());
                     sourceDirectoryFS.rename(sourceFile.getPath(), workPath);
-                    logger.info("원본 파일 '{}'을 작업 디렉토리 '{}'으로 이동하였습니다.", sourceFile.getPath(), workPath);
+                    jobLogger.info("원본 파일 '{}'을 작업 디렉토리 '{}'으로 이동하였습니다.", sourceFile.getPath(), workPath);
                     files.add(sourceDirectoryFS.getFileStatus(workPath));
                 }
             }
@@ -283,7 +287,7 @@ public class LocalToHdfsHandler implements Handler {
         for (FileStatus fs : workingDirectoryFS.listStatus(new Path(workingDirectory))) {
             if (!fs.isDir()) {
                 if (fs.getPath().getName().endsWith(".processing")) {
-                    logger.info("'{}' 파일을 현재 작업중인 파일이므로 무시합니다", fs.getPath());
+                    jobLogger.info("'{}' 파일을 현재 작업중인 파일이므로 무시합니다", fs.getPath());
                     continue;
                 }
                 files.add(fs);
@@ -327,17 +331,17 @@ public class LocalToHdfsHandler implements Handler {
 
         boolean success = false;
         if (local.isRemoveAfterCopy()) {
-            logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 삭제합니다." + fileToMove.getPath());
+            jobLogger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 삭제합니다." + fileToMove.getPath());
             success = workingDirectoryFS.delete(fileToMove.getPath(), false);
             if (!success) {
-                logger.info("원본 파일 '{}'을 삭제하였습니다.", fileToMove.getPath());
+                jobLogger.info("원본 파일 '{}'을 삭제하였습니다.", fileToMove.getPath());
             }
         } else {
             Path completedPath = new Path(completeDirectory, fileToMove.getPath().getName().replaceAll(PROCESSING_FILE_QUALIFIER, ""));
-            logger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 '{}'으로 이동하였습니다.", fileToMove.getPath(), completedPath);
+            jobLogger.info("파일 복사를 완료하였습니다. 원본 파일 '{}'을 '{}'으로 이동하였습니다.", fileToMove.getPath(), completedPath);
             success = workingDirectoryFS.rename(fileToMove.getPath(), completedPath);
             if (!success) {
-                logger.warn("파일 이동이 완료되지 않았습니다.");
+                jobLogger.warn("파일 이동이 완료되지 않았습니다.");
             }
         }
         return success;
@@ -356,7 +360,7 @@ public class LocalToHdfsHandler implements Handler {
         FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
         if (fs.getPath().getName().endsWith(PROCESSING_FILE_QUALIFIER)) {
             Path errorPath = new Path(errorDirectory, fs.getPath().getName().replaceAll(PROCESSING_FILE_QUALIFIER, ""));
-            logger.info("작업 디렉토리에서 파일을 찾았습니다. '{}' 파일을 '{}'으로 이동합니다.", fs.getPath(), errorPath);
+            jobLogger.info("작업 디렉토리에서 파일을 찾았습니다. '{}' 파일을 '{}'으로 이동합니다.", fs.getPath(), errorPath);
             return workingDirectoryFS.rename(fs.getPath(), errorPath);
         }
         return false;
