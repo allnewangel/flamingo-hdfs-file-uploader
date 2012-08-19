@@ -25,7 +25,9 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
          - End With
          - Simple Date Format
      - HDFS
+       o Hadoop Cluster Selection
      - FTP (planned)
+       o Passive, Active
   4. File processing procedures
      - Local FileSystem
        o Source Directory -> Working Directory
