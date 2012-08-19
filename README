@@ -2,6 +2,32 @@ Flamingo HDFS File Uploader - a tool to upload from datasource to datasource and
 
 Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파일을 업로드하는 다양한 기능을 제공합니다. 스케줄링 기능을 포함하고 있어서 일정한 주기로 DataSource를 처리하고자 하는 경우 유용하게 사용할 수 있습니다.
 
+[Features]
+
+  1. Job Scheduler
+     - Multiple jobs in XML
+     - Scheduling
+       o Cron Expression
+       o Timezone
+       o Start, End
+       o Job Priority
+       o Misfire Instruction
+  2. Expression Language in XML
+     - EL Functions (ex; ${dateFormat('yyyyMMdd')} ${tommorow('yyyyMMdd')} ...)
+     - EL Constants (ex; ${GB} ...)
+     - System Properties (ex; ${user.dir} ...)
+  3. DataSource
+     - Local FileSystem
+     - HDFS
+     - FTP (planned)
+  4. File processing procedures
+     - Local FileSystem
+       o Source Directory -> Working Directory
+       o Working Directory -> Staging Directory (HDFS)
+       o Working Directory -> Error Directory or Complete Directory
+     - HDFS
+       o Staging Directory -> Target Directory
+
 [Run procedure]
 
   1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
@@ -24,23 +50,23 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
   1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
   2. Edit pom.xml and change <distributionManagement>
   3. Edit $USER_HOME/.m2/settings.xml and write <servers>
-		<?xml version="1.0" encoding="UTF-8"?>
-		<settings xmlns="http://maven.apache.org/POM/4.0.0"
-		          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-		                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <?xml version="1.0" encoding="UTF-8"?>
+    <settings xmlns="http://maven.apache.org/POM/4.0.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                                  http://maven.apache.org/xsd/settings-1.0.0.xsd">
 
-			<servers>
-				<server>
-					<id>snapshots</id>
-					<username>YOUR_USERNAME</username>
-					<password>YOUR_PASSWORD</password>
-				</server>
-				<server>
-					<id>releases</id>
-					<username>YOUR_USERNAME</username>
-					<password>YOUR_PASSWORD</password>
-				</server>
-			</servers>
-		</settings>
+      <servers>
+        <server>
+          <id>snapshots</id>
+          <username>YOUR_USERNAME</username>
+          <password>YOUR_PASSWORD</password>
+        </server>
+        <server>
+          <id>releases</id>
+          <username>YOUR_USERNAME</username>
+          <password>YOUR_PASSWORD</password>
+        </server>
+      </servers>
+    </settings>
   4. Run 'mvn -DperformRelease=true clean deploy' then deploy distributions to Maven repoistory.
