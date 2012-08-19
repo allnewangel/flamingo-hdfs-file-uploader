@@ -74,7 +74,9 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        logger.info("Flamingo HDFS File Uploader Job 등록을 시작합니다.");
+        logger.info("=================================================================================");
+        logger.info("Flamingo HDFS File Uploader Job XML 파일에 정의되어 있는 Job을 스케줄러에 등록을 시작합니다.");
+        logger.info("=================================================================================");
 
         JobContext jobContext = new JobContextImpl(model, getEvaluator(model, elService));
 
@@ -102,9 +104,11 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 
             startJob(jobContext, job.getName(), job.getName(), cronExpression, start, end, misfireInstruction, triggerPriority, timezone, dataMap);
 
-            logger.info("Job '{}'을 스케줄러에 등록하였습니다.", new Object[]{job.getName(), cronExpression, start, end});
+            logger.info("Job '{}'을 등록하였습니다.", new Object[]{job.getName(), cronExpression, start, end});
         }
-        logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 Job이 진행됩니다.");
+        logger.info("=================================================================================");
+        logger.info("Flamingo HDFS Uploader Job XML에 정의되어 있는 모든 Job을 스케줄링 하였습니다.");
+        logger.info("=================================================================================");
     }
 
     /**
@@ -257,17 +261,17 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             JobKey jobKey = new JobKey(jobName, jobGroupName);
             JobDetail job = JobBuilder.newJob(QuartzJob.class).withIdentity(jobKey).build();
             job.getJobDataMap().putAll(dataMap);
-            logger.info("새로운 배치 작업을 등록하기 위해 배치 작업을 생성하였습니다.");
 
             CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
             setMisfireInstruction(schedBuilder, misfireInstruction);
             setTimezone(jobContext, schedBuilder, timezone);
 
+            Date jobStartDate = new Date();
+
             TriggerBuilder<CronTrigger> triggerBuilder = TriggerBuilder.newTrigger()
                 .withIdentity(jobName, jobGroupName)
                 .withSchedule(schedBuilder)
                 .withPriority(getTriggerPriority(triggerPriority))
-                .startNow()
                 .forJob(jobName, jobGroupName);
 
             if (start != null) {
@@ -276,30 +280,28 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
                 triggerBuilder.startAt(start);
             } else {
                 // 시작시간이 설정되어 있지 않다면 현재 시간부로 시작한다.
-                logger.info("Cron 스케줄링의 시작 시간은 {}입니다.", jobContext.getStartDate());
-                triggerBuilder.startAt(jobContext.getStartDate());
+                logger.info("Cron 스케줄링의 시작 시간은 {}입니다.", DateUtils.addSeconds(jobStartDate, 5));
+                triggerBuilder.startAt(DateUtils.addSeconds(jobStartDate, 5));
             }
 
             if (end != null) {
                 // 종료 시간을 설정한 경우 XML의 종료 시간을 사용한다.
-                if (DateUtils.getDiffSeconds(end, jobContext.getStartDate()) < 0) {
+                if (DateUtils.getDiffSeconds(end, jobStartDate) < 0) {
                     throw new SystemException("종료 시간이 현재 시간보다 과거 시간이므로 스케줄링할 수 없습니다.");
                 }
 
                 logger.info("Cron 스케줄링의 종료 시간은 {}입니다.", end);
                 triggerBuilder.endAt(end);
             } else {
-                logger.info("Cron 스케줄링의 종료 시간이 설정되어 있지 않습니다..");
+                logger.info("Cron 스케줄링의 종료 시간이 설정되어 있지 않습니다.");
             }
 
             CronTrigger trigger = triggerBuilder.build();
-            logger.info("등록한 배치 작업의 실행 주기를 Cron Expression '{}'으로 등록하였습니다.", cronExpression);
-
             scheduler.scheduleJob(job, trigger);
             logger.info("Job '{}' Group '{}' 으로 배치 작업 등록이 완료되었습니다. 작업이 등록되면 해당 시간에 즉시 동작하게 됩니다.", jobName, jobGroupName);
             return jobKey;
         } catch (SchedulerException e) {
-            throw new SystemException(ExceptionUtils.getMessage("Job '{}' Group '{}' 작업을 스케줄러에 등록할 수 없습니다.", jobName, jobGroupName), e);
+            throw new SystemException(ExceptionUtils.getMessage("Job '{}' 을 스케줄러에 등록할 수 없습니다.", jobName, jobGroupName), e);
         }
     }
 

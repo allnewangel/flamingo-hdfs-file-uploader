@@ -71,7 +71,7 @@ public class QuartzJob implements Job {
         jobContext = (JobContext) dataMap.get("context");
 
         //////////////////////////////////////
-        // 핸드러를 이용하여 처리하는 부분
+        // 핸들러를 이용하여 처리하는 부분
         //////////////////////////////////////
 
         Date startDate = new Date();
