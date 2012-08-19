@@ -98,17 +98,18 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             int triggerPriority = job.getSchedule().getTriggerPriority() == null ? Trigger.DEFAULT_PRIORITY : job.getSchedule().getTriggerPriority().intValue();
             String timezone = job.getSchedule().getTimezone() == null ? null : job.getSchedule().getTimezone();
 
-            logger.info("Uploader Job '{}'을 Cron Expression '{}'으로 시작일 '{}', 종료일 '{}'으로 등록합니다.", new Object[]{job.getName(), cronExpression, start, end});
+            logger.info("Uploader Job '{}'을 Cron Expression '{}'으로 등록합니다.", new Object[]{job.getName(), cronExpression, start, end});
 
             if (job.getSchedule().getStart() == null || job.getSchedule().getEnd() == null) {
                 logger.info("시작 날짜 및 종료 날짜가 설정되어 있지 않으므로 즉시 시작합니다.");
                 startJobImmediatly(jobContext, job.getName(), job.getName(), cronExpression, misfireInstruction, triggerPriority, timezone, dataMap);
             } else {
-                logger.info("시작 날짜 및 종료 날짜가 설정되어 있습니다.");
+                logger.info("시작 날짜({}) 및 종료 날짜({})가 설정되어 있습니다.", start, end);
                 startJob(jobContext, job.getName(), job.getName(), cronExpression, start, end, misfireInstruction, triggerPriority, timezone, dataMap);
             }
-            logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 Uploader Job이 진행됩니다.");
+            logger.info("Uploader Job '{}'을 스케줄러에 등록하였습니다.", new Object[]{job.getName(), cronExpression, start, end});
         }
+        logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 Uploader Job이 진행됩니다.");
     }
 
     /**
