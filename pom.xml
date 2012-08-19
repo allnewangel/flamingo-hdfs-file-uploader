@@ -8,12 +8,19 @@
 	<packaging>jar</packaging>
 	<version>0.1-SNAPSHOT</version>
 	<name>Flamingo HDFS File Uploader</name>
-	<description>Flamingo HDFS File Uploader</description>
+	<description>
+		Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파일을 업로드하는 다양한 기능을 제공합니다.
+		스케줄링 기능을 포함하고 있어서 일정한 주기로 DataSource를 처리하고자 하는 경우 유용하게 사용할 수 있습니다.
+	</description>
 	<url>https://github.com/fharenheit/flamingo-hdfs-file-uploader</url>
 	<inceptionYear>2012</inceptionYear>
 
-	<properties>
+	<organization>
+		<url>http://www.openflamingo.org</url>
+		<name>Cloudine</name>
+	</organization>
 
+	<properties>
 		<!-- Project -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -584,14 +591,41 @@
 			<roles>
 				<role>Commiter</role>
 			</roles>
-			<timezone>Asia/Seoul</timezone>
+			<timezone>+9</timezone>
 		</developer>
 	</developers>
+
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/fharenheit/flamingo-hdfs-file-uploader/issues</url>
+	</issueManagement>
 
 	<licenses>
 		<license>
 			<name>The GNU General Public License v3.0</name>
-			<url>http://www.gnu.org/copyleft/gpl.html</url>
+			<url>http://www.gnu.org/licenses/gpl.txt</url>
+			<comments>
+			<![CDATA[
+				Flamingo HDFS File Uploader - a tool to upload from datasource to datasource and schedule jobs
+
+			    Copyright (C) 2011-2012 Cloudine.
+
+			    This file is part of Flamingo HDFS File Uploader.
+
+			    Flamingo HDFS File Uploader is free software: you can redistribute it and/or modify
+			    it under the terms of the GNU General Public License as published by
+			    the Free Software Foundation, either version 3 of the License, or
+			    (at your option) any later version.
+
+			    Flamingo HDFS File Uploader is distributed in the hope that it will be useful,
+			    but WITHOUT ANY WARRANTY; without even the implied warranty of
+			    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+			    GNU General Public License for more details.
+
+			    You should have received a copy of the GNU General Public License
+			    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+			]]>
+			</comments>
 		</license>
 	</licenses>
 </project>
