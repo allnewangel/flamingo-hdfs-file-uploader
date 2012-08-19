@@ -259,6 +259,7 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
     public JobKey startJob(JobContext jobContext, String jobName, String jobGroupName, String cronExpression, Date start, Date end, String misfireInstruction, int triggerPriority, String timezone, Map<String, Object> dataMap) {
         try {
             JobKey jobKey = new JobKey(jobName, jobGroupName);
+            TriggerKey triggerKey = new TriggerKey(jobName, TriggerKey.DEFAULT_GROUP);
             JobDetail job = JobBuilder.newJob(QuartzJob.class).withIdentity(jobKey).build();
             job.getJobDataMap().putAll(dataMap);
 
@@ -269,10 +270,10 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             Date jobStartDate = new Date();
 
             TriggerBuilder<CronTrigger> triggerBuilder = TriggerBuilder.newTrigger()
-                .withIdentity(jobName, jobGroupName)
+                .withIdentity(triggerKey)
                 .withSchedule(schedBuilder)
                 .withPriority(getTriggerPriority(triggerPriority))
-                .forJob(jobName, jobGroupName);
+                .forJob(jobKey);
 
             if (start != null) {
                 // 시작 시간을 설정한 경우 XML의 시작 시간을 사용한다.
