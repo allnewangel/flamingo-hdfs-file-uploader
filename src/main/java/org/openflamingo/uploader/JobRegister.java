@@ -94,9 +94,9 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             String cronExpression = job.getSchedule().getCronExpression();
             Date start = this.getStart(jobContext, job.getSchedule().getStart());
             Date end = this.getEnd(jobContext, job.getSchedule().getEnd());
-            String misfireInstruction = job.getSchedule().getMisfireInstructions().getType();
+            String misfireInstruction = job.getSchedule().getMisfireInstructions() == null ? null : job.getSchedule().getMisfireInstructions().getType();
             int triggerPriority = job.getSchedule().getTriggerPriority().intValue();
-            String timezone = job.getSchedule().getTimezone();
+            String timezone = job.getSchedule().getTimezone() == null ? null : job.getSchedule().getTimezone();
 
 
             logger.info("Uploader Job '{}'을 Cron Expression '{}'으로 시작일 '{}', 종료일 '{}'으로 등록합니다.", new Object[]{job.getName(), cronExpression, start, end});
@@ -119,6 +119,9 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
      * @param misfireInstruction Misfire Instruction 문자열
      */
     private void setMisfireInstruction(CronScheduleBuilder scheduleBuilder, String misfireInstruction) {
+        if (StringUtils.isEmpty(misfireInstruction)) {
+            return;
+        }
         if ("MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY".equals(misfireInstruction)) {
             scheduleBuilder.withMisfireHandlingInstructionDoNothing();
         } else if ("MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY".equals(misfireInstruction)) {
@@ -149,6 +152,10 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
      * @param timezone        Timezone 문자열
      */
     private void setTimezone(JobContext jobContext, CronScheduleBuilder scheduleBuilder, String timezone) {
+        if (StringUtils.isEmpty(timezone)) {
+            scheduleBuilder.inTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+            return;
+        }
         String evaluated = null;
         try {
             evaluated = jobContext.getValue(timezone);
