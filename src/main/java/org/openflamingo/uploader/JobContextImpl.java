@@ -171,7 +171,6 @@ public class JobContextImpl implements JobContext {
         Matcher match = variableRegex.matcher("");
         String eval = regex;
         for (int index = 0; index < MAX_DEPTH; index++) {
-            System.out.println("=======>" + eval);
             match.reset(eval);
             if (!match.find()) {
                 return eval;
