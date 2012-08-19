@@ -2,6 +2,16 @@ Flamingo HDFS File Uploader - a tool to upload from datasource to datasource and
 
 Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파일을 업로드하는 다양한 기능을 제공합니다. 스케줄링 기능을 포함하고 있어서 일정한 주기로 DataSource를 처리하고자 하는 경우 유용하게 사용할 수 있습니다.
 
+[Run procedure]
+
+  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
+  2. Run 'mvn clean package dependency:copy-dependencies assembly:assembly'
+     or Run 'sh assembly.sh'
+  3. Run 'unzip target/flamingo-hdfs-file-uploader-0.x-bin.zip'
+     or 'tar xvfz target/flamingo-hdfs-file-uploader-0.x-bin.tar.gz'
+  4. Edit 'flamingo-hdfs-file-uploader-0.x/conf/example.xml'
+  5. Run 'cd flamingo-hdfs-file-uploader-0.x;sh start.sh'
+
 [Assembly procedure for distribution]
 
   1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
