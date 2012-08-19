@@ -40,8 +40,8 @@
 			</ingress>
 			<outgress>
 				<hdfs cluster="dev">
-					<targetPath>/rain</targetPath>
-					<stagingPath>/tmp/slurper/stage</stagingPath>
+					<targetPath>/rain_test</targetPath>
+					<stagingPath>/rain_stage</stagingPath>
 				</hdfs>
 			</outgress>
 		</policy>
