@@ -25,6 +25,7 @@ import org.openflamingo.uploader.JobContext;
 import org.openflamingo.uploader.jaxb.*;
 import org.openflamingo.uploader.policy.SelectorPattern;
 import org.openflamingo.uploader.policy.SelectorPatternFactory;
+import org.openflamingo.uploader.util.DateUtils;
 import org.openflamingo.uploader.util.FileSystemScheme;
 import org.openflamingo.uploader.util.FileUtils;
 import org.openflamingo.uploader.util.JVMIDUtils;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,6 +84,13 @@ public class LocalToHdfsHandler implements Handler {
      */
     private Local local;
 
+    /**
+     * 기본 생성자.
+     *
+     * @param jobContext Flamingo HDFS File Uploader의 Job Context
+     * @param job        Job
+     * @param local      Local Ingress
+     */
     public LocalToHdfsHandler(JobContext jobContext, Job job, Local local) {
         this.jobContext = jobContext;
         this.job = job;
@@ -104,9 +113,11 @@ public class LocalToHdfsHandler implements Handler {
             FileSystem workingFS = getFileSystem(workingFile.getPath());
 
             //작업 디렉토리의 파일명을 작업중으로 변경한다.
-            Path processingFile = new Path(workingFile.getPath().getName() + PROCESSING_FILE_QUALIFIER);
+            String processingFileName = workingFile.getPath().getName() + PROCESSING_FILE_QUALIFIER;
+            String workingDirectory = correctPath(local.getWorkingDirectory());
+            Path processingFile = new Path(workingDirectory, processingFileName);
             boolean renamed = workingFS.rename(workingFile.getPath(), processingFile);
-            logger.debug("작업 디렉토리의 파일 '{}'을 '{}'으로 파일명을 변경하여 작업중으로 변경합니다.", workingFile.getPath().getName(), workingFile.getPath().getName() + PROCESSING_FILE_QUALIFIER);
+            logger.debug("작업 디렉토리의 파일 '{}'을 '{}'으로 파일명을 변경하여 작업중으로 변경했습니다.", workingFile.getPath(), processingFile);
 
             if (renamed) {
                 // Outgress의 HDFS 정보를 획득한다.
@@ -130,7 +141,7 @@ public class LocalToHdfsHandler implements Handler {
                 });
 
                 // 스테이징 디렉토리에 업로드한다.
-                Path stagingFile = new Path(stagingDirectory, String.valueOf(hash));
+                Path stagingFile = new Path(stagingDirectory, DateUtils.parseDate(new Date(), "yyyyMMddHHmmss") + "_" + String.valueOf(hash));
                 try {
                     targetFS.copyFromLocalFile(false, false, processingFile, stagingFile);
                 } catch (Exception ex) {
@@ -232,23 +243,25 @@ public class LocalToHdfsHandler implements Handler {
      * @throws IOException 파일 시스템에 접근할 수 없거나, 파일을 이동할 수 없는 경우
      */
     public List<FileStatus> copyToWorkingDirectory() throws IOException {
-        SelectorPattern selectorPattern = SelectorPatternFactory.getSelectorPattern(this.local.getSourceDirectory().getConditionType(), jobContext.getValue(this.local.getSourceDirectory().getCondition()), jobContext);
+        SelectorPattern selectorPattern = SelectorPatternFactory.getSelectorPattern(
+            this.local.getSourceDirectory().getConditionType(),
+            jobContext.getValue(this.local.getSourceDirectory().getCondition()), jobContext);
         String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
         String workingDirectory = correctPath(local.getWorkingDirectory());
 
         FileSystem sourceDirectoryFS = getFileSystem(sourceDirectory);
         List<FileStatus> files = new LinkedList<FileStatus>();
-        for (FileStatus fs : sourceDirectoryFS.listStatus(new Path(sourceDirectory))) {
-            if (!fs.isDir()) {
-                if (fs.getPath().getName().startsWith(".") || fs.getPath().getName().startsWith("_") || fs.getPath().getName().endsWith(".work")) {
-                    logger.info("숨김 파일 '{}'은 처리하지 않고 넘어갑니다.", fs.getPath());
+        for (FileStatus sourceFile : sourceDirectoryFS.listStatus(new Path(sourceDirectory))) {
+            if (!sourceFile.isDir()) {
+                if (sourceFile.getPath().getName().startsWith(".") || sourceFile.getPath().getName().startsWith("_") || sourceFile.getPath().getName().endsWith(".work")) {
+                    logger.info("숨김 파일 '{}'은 처리하지 않고 넘어갑니다.", sourceFile.getPath());
                     continue;
                 }
-                if (selectorPattern.accept(FileUtils.getFilename(fs.getPath().getName()))) {
+                if (selectorPattern.accept(FileUtils.getFilename(sourceFile.getPath().getName()))) {
                     // 파일을 작업 디렉토리로 이동한다.
-                    Path workPath = new Path(workingDirectory, fs.getPath().getName());
-                    sourceDirectoryFS.rename(fs.getPath(), workPath);
-                    logger.info("원본 파일 '{}'을 작업 디렉토리 '{}'으로 이동하였습니다.", fs.getPath(), workPath);
+                    Path workPath = new Path(workingDirectory, sourceFile.getPath().getName());
+                    sourceDirectoryFS.rename(sourceFile.getPath(), workPath);
+                    logger.info("원본 파일 '{}'을 작업 디렉토리 '{}'으로 이동하였습니다.", sourceFile.getPath(), workPath);
                     files.add(sourceDirectoryFS.getFileStatus(workPath));
                 }
             }
