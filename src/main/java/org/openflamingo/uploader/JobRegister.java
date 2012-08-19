@@ -100,14 +100,9 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
 
             logger.info("Uploader Job '{}'을 Cron Expression '{}'으로 등록합니다.", new Object[]{job.getName(), cronExpression, start, end});
 
-            if (job.getSchedule().getStart() == null || job.getSchedule().getEnd() == null) {
-                logger.info("시작 날짜 및 종료 날짜가 설정되어 있지 않으므로 즉시 시작합니다.");
-                startJobImmediatly(jobContext, job.getName(), job.getName(), cronExpression, misfireInstruction, triggerPriority, timezone, dataMap);
-            } else {
-                logger.info("시작 날짜({}) 및 종료 날짜({})가 설정되어 있습니다.", start, end);
-                startJob(jobContext, job.getName(), job.getName(), cronExpression, start, end, misfireInstruction, triggerPriority, timezone, dataMap);
-            }
-            logger.info("Uploader Job '{}'을 스케줄러에 등록하였습니다.", new Object[]{job.getName(), cronExpression, start, end});
+            startJob(jobContext, job.getName(), job.getName(), cronExpression, start, end, misfireInstruction, triggerPriority, timezone, dataMap);
+
+            logger.info("Job '{}'을 스케줄러에 등록하였습니다.", new Object[]{job.getName(), cronExpression, start, end});
         }
         logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 Uploader Job이 진행됩니다.");
     }
@@ -267,47 +262,6 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             if (end != null) triggerBuilder.endAt(end);
             CronTrigger trigger = triggerBuilder.build();
             logger.info("등록한 배치 작업의 실행 주기를 Cron Expression '{}'으로 등록하였습니다.", cronExpression);
-
-            scheduler.scheduleJob(job, trigger);
-            logger.info("Job '{}' Group '{}' 으로 배치 작업 등록이 완료되었습니다. 작업이 등록되면 해당 시간에 즉시 동작하게 됩니다.", jobName, jobGroupName);
-            return jobKey;
-        } catch (SchedulerException e) {
-            throw new SystemException(ExceptionUtils.getMessage("Job '{}' Group '{}' 작업을 스케줄러에 등록할 수 없습니다.", jobName, jobGroupName), e);
-        }
-    }
-
-    /**
-     * Quartz Job을 스케줄링한다.
-     *
-     * @param jobContext         Job Context
-     * @param jobName            Quartz Job Name
-     * @param jobGroupName       Quartz Job Group Name
-     * @param cronExpression     Cron Expression
-     * @param misfireInstruction Misfire Instrudction
-     * @param triggerPriority    Trigger Priority
-     * @param timezone           Timezone
-     * @param dataMap            Key Value Parameter Map     @return Job Key
-     */
-    public JobKey startJobImmediatly(JobContext jobContext, String jobName, String jobGroupName, String cronExpression, String misfireInstruction, int triggerPriority, String timezone, Map<String, Object> dataMap) {
-        try {
-            JobKey jobKey = new JobKey(jobName, jobGroupName);
-            JobDetail job = JobBuilder.newJob(QuartzJob.class).withIdentity(jobKey).build();
-            job.getJobDataMap().putAll(dataMap);
-            logger.info("새로운 배치 작업을 등록하기 위해 배치 작업을 생성하였습니다.");
-
-            CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
-            setMisfireInstruction(schedBuilder, misfireInstruction);
-            setTimezone(jobContext, schedBuilder, timezone);
-
-            CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger()
-                .withIdentity(jobName, jobGroupName)
-                .withSchedule(schedBuilder)
-                .withPriority(getTriggerPriority(triggerPriority))
-                .startNow()
-                .forJob(jobName, jobGroupName)
-                .build();
-
-            logger.info("등록한 배치 작업은 즉시 실행하도록 등록하였습니다.");
 
             scheduler.scheduleJob(job, trigger);
             logger.info("Job '{}' Group '{}' 으로 배치 작업 등록이 완료되었습니다. 작업이 등록되면 해당 시간에 즉시 동작하게 됩니다.", jobName, jobGroupName);
