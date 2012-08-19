@@ -67,6 +67,9 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
     @Autowired
     private ELService elService;
 
+    /**
+     * HDFS File Uploader Job XML의 JAXB ROOT Object
+     */
     @Autowired
     private Flamingo model;
 
