@@ -32,7 +32,7 @@ import java.util.List;
  * 지정한 크기보다 더 많은 아이템을 아이템을 버퍼에 추가하면 오래된 아이템을 덮어씌운다.
  *
  * @author Edward KIM
- * @since 0.2
+ * @since 0.1
  */
 public class CircularBuffer<T> implements Iterable<T> {
 

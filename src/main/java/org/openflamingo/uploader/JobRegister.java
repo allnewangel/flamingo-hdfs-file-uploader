@@ -45,7 +45,7 @@ import java.util.*;
  * Scheduler에 등록하는 Job Register.
  *
  * @author Edward KIM
- * @since 0.2
+ * @since 0.1
  */
 @Component
 public class JobRegister implements InitializingBean, ApplicationContextAware {

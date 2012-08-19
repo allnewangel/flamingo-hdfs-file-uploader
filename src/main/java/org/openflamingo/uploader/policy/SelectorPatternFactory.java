@@ -33,7 +33,7 @@ import java.util.Map;
  * Selector Pattern Registry.
  *
  * @author Edward KIM
- * @since 0.2
+ * @since 0.1
  */
 public class SelectorPatternFactory {
 

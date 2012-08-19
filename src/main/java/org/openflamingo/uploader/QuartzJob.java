@@ -39,7 +39,7 @@ import java.util.Date;
  * Quartz Job Scheduler based Flamingo HDFS File Uploader Job.
  *
  * @author Edward KIM
- * @since 0.2
+ * @since 0.1
  */
 public class QuartzJob implements Job {
 
