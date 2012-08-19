@@ -18,6 +18,12 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
      - System Properties (ex; ${user.dir} ...)
   3. DataSource
      - Local FileSystem
+       o File Selector
+         - Regular Expression
+         - Ant Path Style
+         - Start With
+         - End With
+         - Simple Date Format
      - HDFS
      - FTP (planned)
   4. File processing procedures
