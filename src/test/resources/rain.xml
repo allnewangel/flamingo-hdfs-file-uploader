@@ -30,10 +30,10 @@
 						<path>/root/kimbyounggon/rain</path>
 						<condition>rain_*.txt</condition>
 					</sourceDirectory>
-					<workingDirectory>/tmp/slurper/work</workingDirectory>
-					<completeDirectory>/tmp/slurper/complete</completeDirectory>
+					<workingDirectory>/tmp/uploader/work</workingDirectory>
+					<completeDirectory>/tmp/uploader/complete</completeDirectory>
 					<removeAfterCopy>false</removeAfterCopy>
-					<errorDirectory>/tmp/slurper/error</errorDirectory>
+					<errorDirectory>/tmp/uploader/error</errorDirectory>
 				</local>
 			</ingress>
 			<outgress>
