@@ -377,6 +377,6 @@ public class LocalToHdfsHandler implements Handler {
      * @return Job Logger의 ID
      */
     private String getJobLoggerName() {
-        return StringUtils.remove(job.getName(), " ") + "_" + DateUtils.parseDate(jobContext.getStartDate(), "yyyyMMddHHmm") + "_" + JVMIDUtils.generateUUID();
+        return StringUtils.remove(job.getName(), " ") + "_" + DateUtils.parseDate(new Date(), "yyyyMMddHHmm") + "_" + JVMIDUtils.generateUUID();
     }
 }
