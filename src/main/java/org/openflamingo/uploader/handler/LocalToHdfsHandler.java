@@ -176,10 +176,10 @@ public class LocalToHdfsHandler implements Handler {
         // Ingress :: Local FileSystem
         /////////////////////////////////
 
-        String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
-        String workingDirectory = correctPath(local.getWorkingDirectory());
-        String errorDirectory = correctPath(local.getErrorDirectory());
-        String completeDirectory = correctPath(local.getCompleteDirectory());
+        String sourceDirectory = correctPath(jobContext.getValue(local.getSourceDirectory().getPath()));
+        String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
+        String errorDirectory = correctPath(jobContext.getValue(local.getErrorDirectory()));
+        String completeDirectory = correctPath(jobContext.getValue(local.getCompleteDirectory()));
 
         // Scheme이 맞는지 학인한다.
         checkScheme(sourceDirectory, FileSystemScheme.LOCAL);
@@ -208,8 +208,8 @@ public class LocalToHdfsHandler implements Handler {
 
         String cluster = jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getCluster());
         Configuration configuration = this.getConfiguration(jobContext.getModel(), cluster);
-        String stagingPath = configuration.get(HDFS_URL) + "/" + jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getStagingPath());
-        String targetPath = configuration.get(HDFS_URL) + "/" + jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getTargetPath());
+        String stagingPath = jobContext.getValue(configuration.get(HDFS_URL) + "/" + jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getStagingPath()));
+        String targetPath = jobContext.getValue(configuration.get(HDFS_URL) + "/" + jobContext.getValue(job.getPolicy().getOutgress().getHdfs().getTargetPath()));
 
         checkScheme(stagingPath, FileSystemScheme.HDFS);
         checkScheme(targetPath, FileSystemScheme.HDFS);
