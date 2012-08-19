@@ -150,6 +150,7 @@ public class LocalToHdfsHandler implements Handler {
                 });
 
                 // 스테이징 디렉토리에 업로드한다.
+                // FIXME
                 Path stagingFile = new Path(stagingDirectory, DateUtils.parseDate(jobContext.getStartDate(), "yyyyMMddHHmmss") + "_" + String.valueOf(hash));
                 try {
                     targetFS.copyFromLocalFile(false, false, processingFile, stagingFile);
