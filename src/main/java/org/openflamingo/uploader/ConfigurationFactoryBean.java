@@ -20,10 +20,12 @@ package org.openflamingo.uploader;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.util.JaxbUtils;
 import org.openflamingo.uploader.util.ResourceUtils;
+import org.openflamingo.uploader.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -57,14 +59,28 @@ public class ConfigurationFactoryBean implements InitializingBean, FactoryBean<F
      */
     private String JAXB_PACKAGE_NAME = "org.openflamingo.uploader.jaxb";
 
+    /**
+     * HDFS Uploader Job XML File
+     */
+    @Value("#{config['uploader.job.xml']}")
+    private String jobXml;
+
     @Override
     public void afterPropertiesSet() throws Exception {
-        // -Dflamingo.uploader.xml 으로 HDFS Uploader XML 파일의 위치를 지정한 경우 지정한 파일을 먼저 사용한다.
-        if (System.getProperty("flamingo.uploader.xml") != null) {
-            logger.info("'-Dflamingo.uploader.xml={}'으로 지정한 설정 파일을 사용합니다.", System.getProperty("flamingo.uploader.xml"));
-            configurationFile = ResourceUtils.getResource(System.getProperty("flamingo.uploader.xml"));
+        /*
+            설정 파일을 로딩하는 규칙은 다음과 같다.
+              1. -Duploader.job.xml 옵션으로 지정한 절대 경로
+              2. config.properties 파일의 uploader.job.xml 옵션으로 지정한 절대 경로
+              3. 아무것도 없으면 CLASSPATH의 job.xml
+         */
+        if (System.getProperty("uploader.job.xml") != null) {
+            logger.info("'-Duploader.job.xml={}'으로 지정한 설정 파일을 사용합니다.", System.getProperty("uploader.job.xml"));
+            configurationFile = ResourceUtils.getResource(System.getProperty("uploader.job.xml"));
+        } else if (!StringUtils.isEmpty(jobXml)) {
+            logger.info("'config.properties 파일에 지정한 uploader.job.xml의 값인 로컬 파일 시스템의 절대 경로로 지정한 설정 파일을 사용합니다.", jobXml);
+            configurationFile = ResourceUtils.getResource(jobXml);
         } else {
-            configurationFile = new ClassPathResource("classpath:rain.xml");
+            configurationFile = new ClassPathResource("classpath:job.xml");
         }
 
         String xml = ResourceUtils.getResourceTextContents(configurationFile);
