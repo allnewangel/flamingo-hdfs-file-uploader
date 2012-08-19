@@ -376,6 +376,9 @@
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
+			<!--
+			<xsd:attribute name="maxFiles" type="xsd:int" default="5"/>
+			-->
 		</xsd:complexType>
 	</xsd:element>
 

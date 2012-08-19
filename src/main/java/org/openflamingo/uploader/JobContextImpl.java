@@ -28,10 +28,7 @@ import org.openflamingo.uploader.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +81,11 @@ public class JobContextImpl implements JobContext {
     private ELEvaluator evaluator;
 
     /**
+     * Job의 시작 시간
+     */
+    private Date startDate;
+
+    /**
      * 기본 생성자.
      *
      * @param model     HDFS File Uploader XML의 JAXB ROOT
@@ -93,6 +95,7 @@ public class JobContextImpl implements JobContext {
         this.model = model;
         this.props = this.globalVariablesToProperties();
         this.evaluator = evaluator;
+        this.startDate = new Date();
     }
 
     /**
@@ -202,6 +205,11 @@ public class JobContextImpl implements JobContext {
     @Override
     public Flamingo getModel() {
         return this.model;
+    }
+
+    @Override
+    public Date getStartDate() {
+        return this.startDate;
     }
 
     /**

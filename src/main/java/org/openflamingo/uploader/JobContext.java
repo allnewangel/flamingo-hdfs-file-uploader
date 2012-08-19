@@ -19,6 +19,8 @@ package org.openflamingo.uploader;
 
 import org.openflamingo.uploader.jaxb.Flamingo;
 
+import java.util.Date;
+
 /**
  * HDFS File Uploader Job Context.
  *
@@ -41,5 +43,12 @@ public interface JobContext {
      * @return HDFS File Uploader XML의 JAXB ROOT Object
      */
     Flamingo getModel();
+
+    /**
+     * 시작 시간을 반환한다.
+     *
+     * @return 시작 시간
+     */
+    Date getStartDate();
 
 }

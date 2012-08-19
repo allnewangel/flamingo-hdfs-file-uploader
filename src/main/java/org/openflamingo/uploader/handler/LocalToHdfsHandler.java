@@ -101,13 +101,18 @@ public class LocalToHdfsHandler implements Handler {
     @Override
     public void execute() throws Exception {
         // Job Logger
-        jobLogger = LoggerFactory.getLogger(StringUtils.remove(job.getName(), " ") + "_" + JVMIDUtils.generateUUID());
+        jobLogger = LoggerFactory.getLogger(getJobLoggerName());
 
         // 대상 파일을 우선적으로 작업 디렉토리로 이동한다.
         List<FileStatus> inboundFiles = copyToWorkingDirectory();
 
         // 이동한 작업 디렉토리에 파일 목록을 획득한다.
         List<FileStatus> files = getFilesFromWorkingDirectory();
+
+        if (files.size() < 1) {
+            jobLogger.info("처리할 파일이 작업 디렉토리에 존재하지 않아서 작업을 종료합니다.");
+            return;
+        }
 
         // 작업 디렉토리의 파일을 처리중으로 변경하고 HDFS로 업로드한다.
         Iterator<FileStatus> iterator = files.iterator();
@@ -145,7 +150,7 @@ public class LocalToHdfsHandler implements Handler {
                 });
 
                 // 스테이징 디렉토리에 업로드한다.
-                Path stagingFile = new Path(stagingDirectory, DateUtils.parseDate(new Date(), "yyyyMMddHHmmss") + "_" + String.valueOf(hash));
+                Path stagingFile = new Path(stagingDirectory, DateUtils.parseDate(jobContext.getStartDate(), "yyyyMMddHHmmss") + "_" + String.valueOf(hash));
                 try {
                     targetFS.copyFromLocalFile(false, false, processingFile, stagingFile);
                 } catch (Exception ex) {
@@ -364,5 +369,14 @@ public class LocalToHdfsHandler implements Handler {
             return workingDirectoryFS.rename(fs.getPath(), errorPath);
         }
         return false;
+    }
+
+    /**
+     * 문자열로 구성되어 있는 Job Logger의 ID를 생성한다.
+     *
+     * @return Job Logger의 ID
+     */
+    private String getJobLoggerName() {
+        return StringUtils.remove(job.getName(), " ") + "_" + DateUtils.parseDate(jobContext.getStartDate(), "yyyyMMddHHmm") + "_" + JVMIDUtils.generateUUID();
     }
 }

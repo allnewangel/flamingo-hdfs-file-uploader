@@ -257,8 +257,14 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
                 .withIdentity(jobName, jobGroupName)
                 .withSchedule(schedBuilder)
                 .withPriority(getTriggerPriority(triggerPriority))
+                .startNow()
                 .forJob(jobName, jobGroupName);
-            if (start != null) triggerBuilder.startAt(start);
+            if (start != null) {
+                triggerBuilder.startAt(start);
+            } else {
+                // 시작시간이 설정되어 있지 않다면 현재 시간부로 시작한다.
+                triggerBuilder.startAt(new Date());
+            }
             if (end != null) triggerBuilder.endAt(end);
             CronTrigger trigger = triggerBuilder.build();
             logger.info("등록한 배치 작업의 실행 주기를 Cron Expression '{}'으로 등록하였습니다.", cronExpression);
