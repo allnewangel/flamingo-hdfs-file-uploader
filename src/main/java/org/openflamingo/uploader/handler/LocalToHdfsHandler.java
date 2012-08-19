@@ -136,7 +136,7 @@ public class LocalToHdfsHandler implements Handler {
                 } catch (Exception ex) {
                     logger.warn("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드 하지 못하여 에러 디렉토리로 이동시킵니다.", processingFile, stagingFile);
                     copyToErrorDirectory(workingFile);
-                    return;
+                    continue;
                 }
                 logger.info("작업 디렉토리의 파일 '{}'을 스테이징 디렉토리에 '{}'으로 업로드하였습니다.", processingFile, stagingFile);
 
