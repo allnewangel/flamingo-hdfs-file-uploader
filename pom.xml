@@ -6,7 +6,7 @@
 	<groupId>org.openflamingo.hadoop</groupId>
 	<artifactId>flamingo-hdfs-file-uploader</artifactId>
 	<packaging>jar</packaging>
-	<version>0.1</version>
+	<version>0.2-SNAPSHOT</version>
 	<name>Flamingo HDFS File Uploader</name>
 	<description>
 		Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파일을 업로드하는 다양한 기능을 제공합니다.
