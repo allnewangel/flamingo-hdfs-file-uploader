@@ -95,7 +95,7 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             Date start = this.getStart(jobContext, job.getSchedule().getStart());
             Date end = this.getEnd(jobContext, job.getSchedule().getEnd());
             String misfireInstruction = job.getSchedule().getMisfireInstructions() == null ? null : job.getSchedule().getMisfireInstructions().getType();
-            int triggerPriority = job.getSchedule().getTriggerPriority().intValue();
+            int triggerPriority = job.getSchedule().getTriggerPriority() == null ? Trigger.DEFAULT_PRIORITY : job.getSchedule().getTriggerPriority().intValue();
             String timezone = job.getSchedule().getTimezone() == null ? null : job.getSchedule().getTimezone();
 
 
