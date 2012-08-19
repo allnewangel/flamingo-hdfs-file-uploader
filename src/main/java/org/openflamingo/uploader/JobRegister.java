@@ -98,7 +98,6 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             int triggerPriority = job.getSchedule().getTriggerPriority() == null ? Trigger.DEFAULT_PRIORITY : job.getSchedule().getTriggerPriority().intValue();
             String timezone = job.getSchedule().getTimezone() == null ? null : job.getSchedule().getTimezone();
 
-
             logger.info("Uploader Job '{}'을 Cron Expression '{}'으로 시작일 '{}', 종료일 '{}'으로 등록합니다.", new Object[]{job.getName(), cronExpression, start, end});
 
             if (job.getSchedule().getStart() == null || job.getSchedule().getEnd() == null) {
