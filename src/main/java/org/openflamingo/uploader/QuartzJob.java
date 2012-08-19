@@ -89,10 +89,6 @@ public class QuartzJob implements Job {
             }
         }
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-        }
         Date endDate = new Date();
         logger.info("Job '{}'을 완료하였습니다", job.getName());
         logger.info("Job '{}'을 처리하는데 소요된 총 시간은 {} (시작: {} / 종료: {})입니다.", new String[]{
