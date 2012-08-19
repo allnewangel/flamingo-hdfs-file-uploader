@@ -15,27 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openflamingo.uploader.el;
+package org.openflamingo.uploader.exception;
 
 /**
- * Exception thrown by EL functions when they find a transient error.
+ * 파일 시스템을 처리할 수 없는 경우 던지는 예외.
+ *
+ * @author Edward KIM
+ * @since 0.1
  */
-public class ELEvaluationException extends RuntimeException {
+public class ELEvaluationException extends SystemException {
+
+    private static final long serialVersionUID = 1;
 
     /**
-     * Create a EL evaluation exception.
+     * 기본 생성자.
      *
-     * @param message exception message.
-     * @param cause   exception cause.
+     * @param message 예외 메시지
+     * @param cause   예외 원인
      */
     public ELEvaluationException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Create a EL evaluation exception.
+     * 기본 생성자.
      *
-     * @param cause exception cause.
+     * @param cause 예외 원인
      */
     public ELEvaluationException(Throwable cause) {
         super(cause);

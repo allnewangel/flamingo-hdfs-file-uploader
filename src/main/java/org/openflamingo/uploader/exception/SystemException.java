@@ -25,19 +25,38 @@ package org.openflamingo.uploader.exception;
  */
 public class SystemException extends RuntimeException {
 
+    /**
+     * 기본 생성자.
+     */
     public SystemException() {
         super();
     }
 
-    public SystemException(String s) {
-        super(s);
+    /**
+     * 기본 생성자.
+     *
+     * @param message 예외 메시지
+     */
+    public SystemException(String message) {
+        super(message);
     }
 
-    public SystemException(String s, Throwable throwable) {
-        super(s, throwable);
+    /**
+     * 기본 생성자.
+     *
+     * @param message 예외 메시지
+     * @param cause   예외 원인
+     */
+    public SystemException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public SystemException(Throwable throwable) {
-        super(throwable);
+    /**
+     * 기본 생성자.
+     *
+     * @param cause 예외 원인
+     */
+    public SystemException(Throwable cause) {
+        super(cause);
     }
 }

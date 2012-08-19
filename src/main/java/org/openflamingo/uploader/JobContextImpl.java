@@ -19,7 +19,7 @@ package org.openflamingo.uploader;
 
 import org.apache.hadoop.conf.Configuration;
 import org.openflamingo.uploader.el.ELEvaluator;
-import org.openflamingo.uploader.exception.ELException;
+import org.openflamingo.uploader.exception.ELEvaluationException;
 import org.openflamingo.uploader.jaxb.Cluster;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.GlobalVariable;
@@ -185,7 +185,7 @@ public class JobContextImpl implements JobContext {
             // evaluate Expresion Language
             eval = eval.substring(0, match.start()) + val + eval.substring(match.end());
         }
-        throw new ELException("EL을 해석할 수 없습니다.", new IllegalArgumentException("변수를 찾아내기 찾아내야 하는 깊이가 너무 깊습니다. " + MAX_DEPTH + " " + regex));
+        throw new ELEvaluationException("Expression Language를 해석할 수 없습니다.", new IllegalArgumentException("변수를 찾아내기 찾아내야 하는 깊이가 너무 깊습니다. " + MAX_DEPTH + " " + regex));
     }
 
     /**

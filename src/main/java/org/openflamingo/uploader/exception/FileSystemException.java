@@ -25,19 +25,40 @@ package org.openflamingo.uploader.exception;
  */
 public class FileSystemException extends SystemException {
 
+    private static final long serialVersionUID = 1;
+
+    /**
+     * 기본 생성자.
+     */
     public FileSystemException() {
         super();
     }
 
+    /**
+     * 기본 생성자.
+     *
+     * @param message 예외 메시지
+     */
     public FileSystemException(String message) {
         super(message);
     }
 
-    public FileSystemException(String message, Throwable throwable) {
-        super(message, throwable);
+    /**
+     * 기본 생성자.
+     *
+     * @param message 예외 메시지
+     * @param cause   예외 원인
+     */
+    public FileSystemException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public FileSystemException(Throwable throwable) {
-        super(throwable);
+    /**
+     * 기본 생성자.
+     *
+     * @param cause 예외 원인
+     */
+    public FileSystemException(Throwable cause) {
+        super(cause);
     }
 }
