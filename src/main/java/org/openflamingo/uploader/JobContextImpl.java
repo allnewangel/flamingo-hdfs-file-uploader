@@ -174,19 +174,22 @@ public class JobContextImpl implements JobContext {
             System.out.println("=======>" + eval);
             match.reset(eval);
             if (!match.find()) {
-                return "${" + eval + "}"; // 그래도 찾지 못하면 원 문자열을 그대로 넘겨준다.
+                return eval;
             }
             String var = match.group();
-            var = var.substring(2, var.length() - 1); // ${ .. } 제거
-            String val = System.getProperty(var);
+            String eliminated = var.substring(2, var.length() - 1); // ${ .. } 제거
+            String val = System.getProperty(eliminated);
             if (val == null) {
-                val = substituteVars(props, var);
+                val = substituteVars(props, val);
             }
             if (val == null) {
                 return eval; // return literal ${var}: var is unbound
             }
-            // evaluate Expresion Language
-            eval = eval.substring(0, match.start()) + val + eval.substring(match.end());
+            if (var.substring(2, var.length() - 1).equals(val)) {
+                eval = eval.substring(0, match.start()) + var + eval.substring(match.end());
+            } else {
+                eval = eval.substring(0, match.start()) + val + eval.substring(match.end());
+            }
         }
         throw new ELEvaluationException("Expression Language를 해석할 수 없습니다.", new IllegalArgumentException("변수를 찾아내기 찾아내야 하는 깊이가 너무 깊습니다. " + MAX_DEPTH + " " + regex));
     }
