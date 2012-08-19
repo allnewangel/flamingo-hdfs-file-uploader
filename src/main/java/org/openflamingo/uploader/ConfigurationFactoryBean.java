@@ -86,7 +86,7 @@ public class ConfigurationFactoryBean implements InitializingBean, FactoryBean<F
 
         String xml = ResourceUtils.getResourceTextContents(configurationFile);
         configuration = (Flamingo) JaxbUtils.unmarshal(JAXB_PACKAGE_NAME, xml);
-        logger.info("Uploader Job이 등록되어 있는 XML 파일({})을 로딩하였습니다.\n{}", xml, configurationFile.getFile().getAbsolutePath());
+        logger.info("Uploader Job이 등록되어 있는 XML 파일({})을 로딩하였습니다.\n{}", configurationFile.getFile().getAbsolutePath(), xml);
     }
 
     @Override

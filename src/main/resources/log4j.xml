@@ -16,23 +16,19 @@
 	</category>
 
 	<category name="org.jboss.logging">
-		<priority value="INFO"/>
+		<priority value="WARN"/>
 	</category>
 
 	<category name="org.quartz">
-		<priority value="INFO"/>
+		<priority value="WARN"/>
 	</category>
 
 	<category name="org.springframework">
-		<priority value="INFO"/>
+		<priority value="WARN"/>
 	</category>
 
 	<category name="org.apache.pig">
-		<priority value="INFO"/>
-	</category>
-
-	<category name="org.apache.hadoop">
-		<priority value="INFO"/>
+		<priority value="WARN"/>
 	</category>
 
 	<category name="org.apache.hadoop">
@@ -40,7 +36,7 @@
 	</category>
 
 	<category name="org.hibernate">
-		<priority value="INFO"/>
+		<priority value="WARN"/>
 	</category>
 
 	<category name="org.jgroups">
@@ -48,7 +44,7 @@
 	</category>
 
 	<category name="org.jboss">
-		<priority value="INFO"/>
+		<priority value="WARN"/>
 	</category>
 
 	<root>
