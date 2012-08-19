@@ -17,7 +17,6 @@
  */
 package org.openflamingo.uploader.handler;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -31,10 +30,8 @@ import org.openflamingo.uploader.util.FileSystemScheme;
 import org.openflamingo.uploader.util.FileUtils;
 import org.openflamingo.uploader.util.JVMIDUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,18 +88,17 @@ public class LocalToHdfsHandler implements Handler {
      * @param jobContext Flamingo HDFS File Uploader의 Job Context
      * @param job        Job
      * @param local      Local Ingress
+     * @param jobLogger  Job Logger for trace
      */
-    public LocalToHdfsHandler(JobContext jobContext, Job job, Local local) {
+    public LocalToHdfsHandler(JobContext jobContext, Job job, Local local, Logger jobLogger) {
         this.jobContext = jobContext;
         this.job = job;
         this.local = local;
+        this.jobLogger = jobLogger;
     }
 
     @Override
     public void execute() throws Exception {
-        // Job Logger
-        jobLogger = LoggerFactory.getLogger(getJobLoggerName());
-
         // 대상 파일을 우선적으로 작업 디렉토리로 이동한다.
         List<FileStatus> inboundFiles = copyToWorkingDirectory();
 
@@ -369,14 +365,5 @@ public class LocalToHdfsHandler implements Handler {
             return workingDirectoryFS.rename(fs.getPath(), errorPath);
         }
         return false;
-    }
-
-    /**
-     * 문자열로 구성되어 있는 Job Logger의 ID를 생성한다.
-     *
-     * @return Job Logger의 ID
-     */
-    private String getJobLoggerName() {
-        return StringUtils.remove(job.getName(), " ") + "_" + DateUtils.parseDate(new Date(), "yyyyMMddHHmm") + "_" + JVMIDUtils.generateUUID();
     }
 }

@@ -17,10 +17,12 @@
  */
 package org.openflamingo.uploader;
 
+import org.apache.commons.lang.StringUtils;
 import org.openflamingo.uploader.handler.LocalToHdfsHandler;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.Local;
 import org.openflamingo.uploader.util.DateUtils;
+import org.openflamingo.uploader.util.JVMIDUtils;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -41,7 +43,7 @@ public class QuartzJob implements Job {
     /**
      * SLF4J Logging
      */
-    private Logger logger = LoggerFactory.getLogger(QuartzJob.class);
+    private Logger logger;
 
     /**
      * HDFS File Uploader Job XML의 JAXB ROOT Object
@@ -75,12 +77,15 @@ public class QuartzJob implements Job {
         //////////////////////////////////////
 
         Date startDate = new Date();
+        String jobLoggerName = StringUtils.remove(job.getName(), " ") + "_" + DateUtils.parseDate(startDate, "yyyyMMddHHmm") + "_" + JVMIDUtils.generateUUID();
+        logger = LoggerFactory.getLogger(jobLoggerName);
+
         logger.info("--------------------------------------------");
         logger.info("Job '{}'을 시작합니다", job.getName());
         logger.info("--------------------------------------------");
         if (job.getPolicy().getIngress().getLocal() != null) {
             Local local = job.getPolicy().getIngress().getLocal();
-            LocalToHdfsHandler localToHdfsHandler = new LocalToHdfsHandler(jobContext, job, local);
+            LocalToHdfsHandler localToHdfsHandler = new LocalToHdfsHandler(jobContext, job, local, logger);
             localToHdfsHandler.validate();
             try {
                 localToHdfsHandler.execute();
