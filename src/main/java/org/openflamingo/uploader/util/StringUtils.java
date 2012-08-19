@@ -54,7 +54,7 @@ public class StringUtils {
      * @return 비어있다면 <tt>true</tt>
      */
     public static boolean isEmpty(String str) {
-        return (str == null && str.trim().length() < 1);
+        return (str == null || str.trim().length() < 1);
     }
 
     /**
