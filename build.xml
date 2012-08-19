@@ -26,7 +26,8 @@
 		<echo>Now generating JAXB objects for XSD ....</echo>
 		<echo>Base Directory : ${basedir}</echo>
 
-		<xjc schema="${basedir}/src/main/resources/flamingo-uploader-1.0.xsd" destdir="${basedir}/src/main/java"
+		<xjc schema="${basedir}/src/main/resources/flamingo-uploader-1.0.xsd"
+		     destdir="${basedir}/src/main/java"
 		     package="org.openflamingo.uploader.jaxb"/>
 
 		<echo>Completed...</echo>

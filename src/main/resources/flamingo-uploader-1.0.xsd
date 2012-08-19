@@ -246,7 +246,7 @@
 					<xsd:complexType>
 						<xsd:choice>
 							<xsd:element ref="local" minOccurs="1" maxOccurs="1"/>
-<!--
+							<!--
 							<xsd:element ref="ftp" minOccurs="1" maxOccurs="1"/>
 							<xsd:element ref="hdfs" minOccurs="1" maxOccurs="1"/>
 -->
@@ -256,7 +256,7 @@
 				<xsd:element name="outgress">
 					<xsd:complexType>
 						<xsd:choice>
-<!--
+							<!--
 							<xsd:element ref="local" minOccurs="1" maxOccurs="1"/>
 							<xsd:element ref="ftp" minOccurs="1" maxOccurs="1"/>
 -->
@@ -291,6 +291,22 @@
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element name="cronExpression" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="timezone" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="triggerPriority" type="xsd:int" minOccurs="0" maxOccurs="1" default="5"/>
+				<xsd:element name="misfireInstructions" minOccurs="0" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:attribute name="type" default="MISFIRE_INSTRUCTION_SMART_POLICY">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:NMTOKEN">
+									<xsd:enumeration value="MISFIRE_INSTRUCTION_SMART_POLICY"/>
+									<xsd:enumeration value="MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY"/>
+									<xsd:enumeration value="MISFIRE_INSTRUCTION_DO_NOTHING"/>
+									<xsd:enumeration value="MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
 				<xsd:element ref="start" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="end" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
