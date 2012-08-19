@@ -20,19 +20,18 @@
  */
 package org.openflamingo.uploader;
 
-import org.apache.hadoop.conf.Configuration;
 import org.openflamingo.uploader.el.ELEvaluator;
 import org.openflamingo.uploader.exception.ELEvaluationException;
-import org.openflamingo.uploader.jaxb.Cluster;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.GlobalVariable;
-import org.openflamingo.uploader.jaxb.Property;
 import org.openflamingo.uploader.util.ExceptionUtils;
 import org.openflamingo.uploader.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,47 +119,9 @@ public class JobContextImpl implements JobContext {
     }
 
     /**
-     * Hadoop Cluster의 이름으로 Cluster의 Hadoop Configuration을 생성한다.
-     *
-     * @param clusterName Hadoop Cluster명
-     * @return {@link org.apache.hadoop.conf.Configuration}
-     */
-    public Configuration getConfiguration(String clusterName) {
-        Configuration configuration = new Configuration();
-        List<Cluster> clusters = model.getClusters().getCluster();
-        for (Cluster cluster : clusters) {
-            if (clusterName.equals(cluster.getName())) {
-                configuration.set(HDFS_URL, cluster.getFsDefaultName());
-                configuration.set(JOB_TRACKER, cluster.getMapredJobTracker());
-
-                List<Property> properties = cluster.getProperties().getProperty();
-                for (Property property : properties) {
-                    configuration.set(property.getName(), property.getValue());
-                }
-            }
-        }
-        return configuration;
-    }
-
-    /**
-     * Uploader에 정의되어 있는 Hadoop Cluster 정보를 Cluster Name을 Key로 하는 Map을 반환한다.
-     *
-     * @return Cluster Name을 Key로, Configuration을 Value로 하는 Map
-     */
-    public Map<String, Configuration> getConfigurationMap() {
-        Map<String, Configuration> map = new HashMap<String, Configuration>();
-        List<Cluster> clusters = model.getClusters().getCluster();
-        for (Cluster cluster : clusters) {
-            Configuration configuration = getConfiguration(cluster.getName());
-            map.put(cluster.getName(), configuration);
-        }
-        return map;
-    }
-
-    /**
      * Properties에서 지정한 정규표현식이 포함되어 있는 Key를 기준으로 값을 꺼내온다.
      *
-     * @param props Property
+     * @param props Properties
      * @param regex Regular Expression
      * @return Value
      */
@@ -204,23 +165,13 @@ public class JobContextImpl implements JobContext {
         return evaluate(substituteVars(props, name));
     }
 
-    @Override
-    public Flamingo getModel() {
-        return this.model;
-    }
-
-    @Override
-    public Date getStartDate() {
-        return this.startDate;
-    }
-
     /**
      * 주어진 값에 포함되어 있는 EL을 Evaluator를 이용하여 EL과 Function을 해석한다.
      *
      * @param value EL을 포함하는 문자열
      * @return EL과 Function을 해석한 문자열
      */
-    public String evaluate(String value) {
+    private String evaluate(String value) {
         if (StringUtils.isEmpty(value)) {
             return "";
         }
@@ -232,15 +183,14 @@ public class JobContextImpl implements JobContext {
         }
     }
 
-    /**
-     * Property의 <code>name</code>에 해당하는 값을 반환한다. 해당 속성값이 존재하지 않으면 <code>null</code>을 반환한다.
-     *
-     * @param props Property
-     * @param name  Property 명
-     * @return Property의 <code>name</code>에 해당하는 값, 존재하지 않는 경우 <code>null</code>
-     */
-    public String getRawValue(Properties props, String name) {
-        return props.getProperty(name);
+    @Override
+    public Flamingo getModel() {
+        return this.model;
+    }
+
+    @Override
+    public Date getStartDate() {
+        return this.startDate;
     }
 
 }
