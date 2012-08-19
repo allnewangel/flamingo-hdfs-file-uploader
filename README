@@ -71,16 +71,63 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
     </settings>
   4. Run 'mvn -DperformRelease=true clean deploy' then deploy distributions to Maven repoistory.
 
+[Job XML example]
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <flamingo xmlns="http://www.openflamingo.org/schema/uploader"
+            xsi:schemaLocation="http://www.openflamingo.org/schema/uploader flamingo-uploader-1.0.xsd"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <description>서울시 공공 데이터 배치 업로드</description>
+
+    <clusters>
+      <cluster name="dev" description="개발 클러스터">
+        <fs.default.name>hdfs://172.27.21.143:9000</fs.default.name>
+        <mapred.job.tracker>172.27.21.143:9001</mapred.job.tracker>
+      </cluster>
+    </clusters>
+
+    <globalVariables>
+      <globalVariable name="currentDate" value="${dateFormat('yyyyMMdd')}" description="string"/>
+    </globalVariables>
+
+    <job name="Seoul_Rain" description="서울시 공공 데이터 - 강수량 데이터 수집 Job">
+      <schedule>
+        <cronExpression>0 * * * * ?</cronExpression>
+      </schedule>
+      <policy>
+        <ingress>
+          <local>
+            <sourceDirectory conditionType="antPattern">
+              <path>/home/hadoop/input/rain</path>
+              <condition>rain_*.txt</condition>
+            </sourceDirectory>
+            <workingDirectory>/tmp/uploader/work</workingDirectory>
+            <completeDirectory>/tmp/uploader/complete</completeDirectory>
+            <removeAfterCopy>false</removeAfterCopy>
+            <errorDirectory>/tmp/uploader/error</errorDirectory>
+          </local>
+        </ingress>
+        <outgress>
+          <hdfs cluster="dev">
+            <targetPath>/input</targetPath>
+            <stagingPath>/stage</stagingPath>
+          </hdfs>
+        </outgress>
+      </policy>
+    </job>
+  </flamingo>
+
 [Example log messages]
 
-	2012-08-20 02:08:00,001 INFO  [Seoul_Rain_201208200208_517544283] --------------------------------------------
-	2012-08-20 02:08:00,001 INFO  [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 시작합니다
-	2012-08-20 02:08:00,001 INFO  [Seoul_Rain_201208200208_517544283] --------------------------------------------
-	2012-08-20 02:08:00,062 INFO  [Seoul_Rain_201208200208_517544283] 원본 파일 'file:/root/kimbyounggon/rain/rain_20120820-020701.txt'을 작업 디렉토리 'file:/tmp/slurper/work/rain_20120820-020701.txt'으로 이동하였습니다.
-	2012-08-20 02:08:00,073 INFO  [Seoul_Rain_201208200208_517544283] HDFS에 업로드하기 위해서 사용할 Hadoop Cluster 'dev'이며 Hadoop Cluster의 파일 시스템을 얻었습니다.
-	2012-08-20 02:08:00,073 INFO  [Seoul_Rain_201208200208_517544283] HDFS에 업로드하기 위해서 사용할 최종 목적지 디렉토리는 '/rain_test'이며 스테이징 디렉토리는 '/rain_stage'입니다.
-	2012-08-20 02:08:00,088 INFO  [Seoul_Rain_201208200208_517544283] 작업 디렉토리의 파일 'file:/tmp/slurper/work/rain_20120820-020701.txt.processing'을 스테이징 디렉토리에 '/rain_stage/20120820004808_1072302239'으로 업로드하였습니다.
-	2012-08-20 02:08:00,089 INFO  [Seoul_Rain_201208200208_517544283] 스테이징 디렉토리에 '/rain_stage/20120820004808_1072302239' 파일을 '/rain_test/rain_20120820-020701.txt'으로 이동하였습니다.
-	2012-08-20 02:08:00,093 INFO  [Seoul_Rain_201208200208_517544283] 파일 복사를 완료하였습니다. 원본 파일 'file:/tmp/slurper/work/rain_20120820-020701.txt.processing'을 'file:/tmp/slurper/complete/rain_20120820-020701.txt'으로 이동하였습니다.
-	2012-08-20 02:08:00,093 INFO  [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 완료하였습니다
-	2012-08-20 02:08:00,094 INFO  [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 처리하는데 소요된 총 시간은 0초 (시작: 2012-08-20 02:08:00 / 종료: 2012-08-20 02:08:00)입니다.
+  [Seoul_Rain_201208200208_517544283] --------------------------------------------
+  [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 시작합니다
+  [Seoul_Rain_201208200208_517544283] --------------------------------------------
+  [Seoul_Rain_201208200208_517544283] 원본 파일 'file:/root/kimbyounggon/rain/rain_20120820-020701.txt'을 작업 디렉토리 'file:/tmp/slurper/work/rain_20120820-020701.txt'으로 이동하였습니다.
+  [Seoul_Rain_201208200208_517544283] HDFS에 업로드하기 위해서 사용할 Hadoop Cluster 'dev'이며 Hadoop Cluster의 파일 시스템을 얻었습니다.
+  [Seoul_Rain_201208200208_517544283] HDFS에 업로드하기 위해서 사용할 최종 목적지 디렉토리는 '/rain_test'이며 스테이징 디렉토리는 '/rain_stage'입니다.
+  [Seoul_Rain_201208200208_517544283] 작업 디렉토리의 파일 'file:/tmp/slurper/work/rain_20120820-020701.txt.processing'을 스테이징 디렉토리에 '/rain_stage/20120820004808_1072302239'으로 업로드하였습니다.
+  [Seoul_Rain_201208200208_517544283] 스테이징 디렉토리에 '/rain_stage/20120820004808_1072302239' 파일을 '/rain_test/rain_20120820-020701.txt'으로 이동하였습니다.
+  [Seoul_Rain_201208200208_517544283] 파일 복사를 완료하였습니다. 원본 파일 'file:/tmp/slurper/work/rain_20120820-020701.txt.processing'을 'file:/tmp/slurper/complete/rain_20120820-020701.txt'으로 이동하였습니다.
+  [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 완료하였습니다
+  [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 처리하는데 소요된 총 시간은 0초 (시작: 2012-08-20 02:08:00 / 종료: 2012-08-20 02:08:00)입니다.
