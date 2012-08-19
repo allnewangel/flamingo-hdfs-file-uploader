@@ -122,7 +122,7 @@ public class LocalToHdfsHandler implements Handler {
 
             //작업 디렉토리의 파일명을 작업중으로 변경한다.
             String processingFileName = workingFile.getPath().getName() + PROCESSING_FILE_QUALIFIER;
-            String workingDirectory = correctPath(local.getWorkingDirectory());
+            String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
             Path processingFile = new Path(workingDirectory, processingFileName);
             boolean renamed = workingFS.rename(workingFile.getPath(), processingFile);
             jobLogger.debug("작업 디렉토리의 파일 '{}'을 '{}'으로 파일명을 변경하여 작업중으로 변경했습니다.", workingFile.getPath(), processingFile);
@@ -254,8 +254,8 @@ public class LocalToHdfsHandler implements Handler {
         SelectorPattern selectorPattern = SelectorPatternFactory.getSelectorPattern(
             this.local.getSourceDirectory().getConditionType(),
             jobContext.getValue(this.local.getSourceDirectory().getCondition()), jobContext);
-        String sourceDirectory = correctPath(local.getSourceDirectory().getPath());
-        String workingDirectory = correctPath(local.getWorkingDirectory());
+        String sourceDirectory = correctPath(jobContext.getValue(local.getSourceDirectory().getPath()));
+        String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
 
         FileSystem sourceDirectoryFS = getFileSystem(sourceDirectory);
         List<FileStatus> files = new LinkedList<FileStatus>();
@@ -285,7 +285,7 @@ public class LocalToHdfsHandler implements Handler {
      * @throws IOException 파일 시스템에 접근할 수 없거나 또는 파일 목록을 얻을 수 없는 경우
      */
     public List<FileStatus> getFilesFromWorkingDirectory() throws IOException {
-        String workingDirectory = correctPath(local.getWorkingDirectory());
+        String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
         FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
         List<FileStatus> files = new LinkedList<FileStatus>();
         for (FileStatus fs : workingDirectoryFS.listStatus(new Path(workingDirectory))) {
@@ -308,7 +308,7 @@ public class LocalToHdfsHandler implements Handler {
      * @throws IOException 파일 시스템에 접근할 수 없거나 또는 파일 목록을 얻을 수 없는 경우
      */
     public List<FileStatus> getProcessingFilesFromWorkingDirectory() throws IOException {
-        String workingDirectory = correctPath(local.getWorkingDirectory());
+        String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
         FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
         List<FileStatus> files = new LinkedList<FileStatus>();
         for (FileStatus fs : workingDirectoryFS.listStatus(new Path(workingDirectory))) {
@@ -329,8 +329,8 @@ public class LocalToHdfsHandler implements Handler {
      * @throws IOException 파일을 이동할 수 없는 경우
      */
     public boolean copyToCompleteDirectory(FileStatus fileToMove) throws IOException {
-        String workingDirectory = correctPath(local.getWorkingDirectory());
-        String completeDirectory = correctPath(local.getCompleteDirectory());
+        String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
+        String completeDirectory = correctPath(jobContext.getValue(local.getCompleteDirectory()));
         FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
 
         boolean success = false;
@@ -359,8 +359,8 @@ public class LocalToHdfsHandler implements Handler {
      * @throws IOException 파일을 이동할 수 없는 경우
      */
     public boolean copyToErrorDirectory(FileStatus fs) throws IOException {
-        String workingDirectory = correctPath(local.getWorkingDirectory());
-        String errorDirectory = correctPath(local.getErrorDirectory());
+        String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
+        String errorDirectory = correctPath(jobContext.getValue(local.getErrorDirectory()));
         FileSystem workingDirectoryFS = getFileSystem(workingDirectory);
         if (fs.getPath().getName().endsWith(PROCESSING_FILE_QUALIFIER)) {
             Path errorPath = new Path(errorDirectory, fs.getPath().getName().replaceAll(PROCESSING_FILE_QUALIFIER, ""));

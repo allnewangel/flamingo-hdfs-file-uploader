@@ -203,7 +203,7 @@ public class JobContextImpl implements JobContext {
      * @return Property의 <code>name</code>에 해당하는 값, 존재하지 않는 경우 <code>null</code>
      */
     public String getValue(String name) {
-        return substituteVars(props, evaluate(name));
+        return evaluate(substituteVars(props, name));
     }
 
     @Override
