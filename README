@@ -93,6 +93,7 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
 
     <job name="Seoul_Rain" description="Seoul Public Data - Rain Job">
       <schedule>
+        <!-- 매 1분마다 동작 -->
         <cronExpression>0 * * * * ?</cronExpression>
         <!-- 오늘부터 동작 -->
         <start datePattern="yyyyMMdd" data="${currentDate}"/>
