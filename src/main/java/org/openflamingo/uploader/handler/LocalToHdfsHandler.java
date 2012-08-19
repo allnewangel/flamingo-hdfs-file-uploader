@@ -157,7 +157,7 @@ public class LocalToHdfsHandler implements Handler {
                 logger.info("스테이징 디렉토리에 '{}' 파일을 '{}'으로 이동하였습니다.", stagingFile, targetFile);
 
                 // 프로세싱 파일을 완료 디렉토리로 이동한다.
-                copyToCompleteDirectory(workingFile);
+                copyToCompleteDirectory(workingFS.getFileStatus(processingFile));
             }
         }
     }
