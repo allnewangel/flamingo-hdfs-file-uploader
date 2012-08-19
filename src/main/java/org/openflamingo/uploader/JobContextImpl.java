@@ -174,7 +174,7 @@ public class JobContextImpl implements JobContext {
             System.out.println("=======>" + eval);
             match.reset(eval);
             if (!match.find()) {
-                return eval;
+                return "${" + eval + "}"; // 그래도 찾지 못하면 원 문자열을 그대로 넘겨준다.
             }
             String var = match.group();
             var = var.substring(2, var.length() - 1); // ${ .. } 제거
@@ -183,7 +183,7 @@ public class JobContextImpl implements JobContext {
                 val = substituteVars(props, var);
             }
             if (val == null) {
-                return "${" + eval + "}"; // return literal ${var}: var is unbound
+                return eval; // return literal ${var}: var is unbound
             }
             // evaluate Expresion Language
             eval = eval.substring(0, match.start()) + val + eval.substring(match.end());
