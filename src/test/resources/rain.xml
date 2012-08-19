@@ -30,16 +30,16 @@
 						<path>/root/kimbyounggon/rain</path>
 						<condition>rain_*.txt</condition>
 					</sourceDirectory>
-					<workingDirectory>/tmp/uploader/work</workingDirectory>
-					<completeDirectory>/tmp/uploader/complete</completeDirectory>
+					<workingDirectory>/tmp/${user.name}/work</workingDirectory>
+					<completeDirectory>/tmp/${user.name}/complete</completeDirectory>
 					<removeAfterCopy>false</removeAfterCopy>
-					<errorDirectory>/tmp/uploader/error</errorDirectory>
+					<errorDirectory>/tmp/${user.name}/error</errorDirectory>
 				</local>
 			</ingress>
 			<outgress>
 				<hdfs cluster="dev">
-					<targetPath>/rain_test</targetPath>
-					<stagingPath>/rain_stage</stagingPath>
+					<targetPath>/rain/upload/${dateFormat('yyyy')}/${dateFormat('MM')}/${dateFormat('dd')}</targetPath>
+					<stagingPath>/rain/stage/${currentDate}</stagingPath>
 				</hdfs>
 			</outgress>
 		</policy>
