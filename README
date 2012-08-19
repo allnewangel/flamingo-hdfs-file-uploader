@@ -4,11 +4,33 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
 
 [Assembly procedure for distribution]
 
-  1. change version (from 1.x-SNAPSHOT to 1.x)
-  2. Run 'mvn -Dmaven.test.skip=true clean package dependency:copy-dependencies assembly:assembly'
+  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
+  2. Edit pom.xml and change version (from 1.x-SNAPSHOT to 1.x)
+  3. Run 'mvn -Dmaven.test.skip=true clean package dependency:copy-dependencies assembly:assembly'
      or Run 'sh assembly.sh'
 
-[Release procedure]
+[Maven Release procedure]
 
-  1. change version (from 1.x-SNAPSHOT to 1.x)
-  2. Run 'mvn -DperformRelease=true clean deploy'
+  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
+  2. Edit pom.xml and change <distributionManagement>
+  3. Edit $USER_HOME/.m2/settings.xml and write <servers>
+		<?xml version="1.0" encoding="UTF-8"?>
+		<settings xmlns="http://maven.apache.org/POM/4.0.0"
+		          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+			<servers>
+				<server>
+					<id>snapshots</id>
+					<username>YOUR_USERNAME</username>
+					<password>YOUR_PASSWORD</password>
+				</server>
+				<server>
+					<id>releases</id>
+					<username>YOUR_USERNAME</username>
+					<password>YOUR_PASSWORD</password>
+				</server>
+			</servers>
+		</settings>
+  4. Run 'mvn -DperformRelease=true clean deploy' then deploy distributions to Maven repoistory.
