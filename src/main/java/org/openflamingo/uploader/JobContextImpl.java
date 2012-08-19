@@ -183,7 +183,7 @@ public class JobContextImpl implements JobContext {
                 val = substituteVars(props, var);
             }
             if (val == null) {
-                return eval; // return literal ${var}: var is unbound
+                return "${" + eval + "}"; // return literal ${var}: var is unbound
             }
             // evaluate Expresion Language
             eval = eval.substring(0, match.start()) + val + eval.substring(match.end());
