@@ -28,49 +28,6 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
      - HDFS
        o Staging Directory -> Target Directory
 
-[Run procedure]
-
-  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
-  2. Run 'mvn clean package dependency:copy-dependencies assembly:assembly'
-     or Run 'sh assembly.sh'
-  3. Run 'unzip target/flamingo-hdfs-file-uploader-0.x-bin.zip'
-     or 'tar xvfz target/flamingo-hdfs-file-uploader-0.x-bin.tar.gz'
-  4. Edit 'flamingo-hdfs-file-uploader-0.x/conf/example.xml'
-  5. Run 'cd flamingo-hdfs-file-uploader-0.x;sh start.sh'
-
-[Assembly procedure for distribution]
-
-  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
-  2. Edit pom.xml and change version (from 1.x-SNAPSHOT to 1.x)
-  3. Run 'mvn clean package dependency:copy-dependencies assembly:assembly'
-     or Run 'sh assembly.sh'
-
-[Maven Release procedure]
-
-  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
-  2. Edit pom.xml and change <distributionManagement>
-  3. Edit $USER_HOME/.m2/settings.xml and write <servers>
-    <?xml version="1.0" encoding="UTF-8"?>
-    <settings xmlns="http://maven.apache.org/POM/4.0.0"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                                  http://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-      <servers>
-        <server>
-          <id>snapshots</id>
-          <username>YOUR_USERNAME</username>
-          <password>YOUR_PASSWORD</password>
-        </server>
-        <server>
-          <id>releases</id>
-          <username>YOUR_USERNAME</username>
-          <password>YOUR_PASSWORD</password>
-        </server>
-      </servers>
-    </settings>
-  4. Run 'mvn -DperformRelease=true clean deploy' then deploy distributions to Maven repoistory.
-
 [Job XML example]
 
   <?xml version="1.0" encoding="UTF-8"?>
@@ -136,3 +93,47 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
   [Seoul_Rain_201208200208_517544283] 파일 복사를 완료하였습니다. 원본 파일 'file:/tmp/slurper/work/rain_20120820-020701.txt.processing'을 'file:/tmp/slurper/complete/rain_20120820-020701.txt'으로 이동하였습니다.
   [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 완료하였습니다
   [Seoul_Rain_201208200208_517544283] Job 'Seoul_Rain'을 처리하는데 소요된 총 시간은 0초 (시작: 2012-08-20 02:08:00 / 종료: 2012-08-20 02:08:00)입니다.
+
+[Run procedure]
+
+  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
+  2. Run 'mvn clean package dependency:copy-dependencies assembly:assembly'
+     or Run 'sh assembly.sh'
+  3. Run 'unzip target/flamingo-hdfs-file-uploader-0.x-bin.zip'
+     or 'tar xvfz target/flamingo-hdfs-file-uploader-0.x-bin.tar.gz'
+  4. Edit 'flamingo-hdfs-file-uploader-0.x/conf/example.xml'
+  5. Run 'cd flamingo-hdfs-file-uploader-0.x;sh start.sh'
+
+[Assembly procedure for distribution]
+
+  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
+  2. Edit pom.xml and change version (from 1.x-SNAPSHOT to 1.x)
+  3. Run 'mvn clean package dependency:copy-dependencies assembly:assembly'
+     or Run 'sh assembly.sh'
+
+[Maven Release procedure]
+
+  1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
+  2. Edit pom.xml and change <distributionManagement>
+  3. Edit $USER_HOME/.m2/settings.xml and write <servers>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <settings xmlns="http://maven.apache.org/POM/4.0.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                                  http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+      <servers>
+        <server>
+          <id>snapshots</id>
+          <username>YOUR_USERNAME</username>
+          <password>YOUR_PASSWORD</password>
+        </server>
+        <server>
+          <id>releases</id>
+          <username>YOUR_USERNAME</username>
+          <password>YOUR_PASSWORD</password>
+        </server>
+      </servers>
+    </settings>
+  4. Run 'mvn -DperformRelease=true clean deploy' then deploy distributions to Maven repoistory.
+
