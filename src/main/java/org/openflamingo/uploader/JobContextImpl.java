@@ -201,10 +201,7 @@ public class JobContextImpl implements JobContext {
      * @return Property의 <code>name</code>에 해당하는 값, 존재하지 않는 경우 <code>null</code>
      */
     public String getValue(String name) {
-        String value = substituteVars(props, name);
-        String evaluate = evaluate(value);
-        logger.trace("EL: {} => {} =>", new String[]{name, value, evaluate});
-        return evaluate;
+        return evaluate(substituteVars(props, name));
     }
 
     @Override
