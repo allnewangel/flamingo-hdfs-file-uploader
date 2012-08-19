@@ -6,7 +6,7 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
 
   1. Run 'git clone https://github.com/fharenheit/flamingo-hdfs-file-uploader.git'
   2. Edit pom.xml and change version (from 1.x-SNAPSHOT to 1.x)
-  3. Run 'mvn -Dmaven.test.skip=true clean package dependency:copy-dependencies assembly:assembly'
+  3. Run 'mvn clean package dependency:copy-dependencies assembly:assembly'
      or Run 'sh assembly.sh'
 
 [Maven Release procedure]
