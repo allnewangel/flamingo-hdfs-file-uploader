@@ -171,18 +171,14 @@ public class JobContextImpl implements JobContext {
         Matcher match = variableRegex.matcher("");
         String eval = regex;
         for (int index = 0; index < MAX_DEPTH; index++) {
+            System.out.println("=======>" + eval);
             match.reset(eval);
             if (!match.find()) {
                 return eval;
             }
             String var = match.group();
             var = var.substring(2, var.length() - 1); // ${ .. } 제거
-            String val = null;
-            try {
-                val = System.getProperty(var);
-            } catch (SecurityException se) {
-                logger.warn("System Properties에서 파라미터에 접근할 수 없습니다.", se);
-            }
+            String val = System.getProperty(var);
             if (val == null) {
                 val = substituteVars(props, var);
             }
@@ -205,7 +201,7 @@ public class JobContextImpl implements JobContext {
     public String getValue(String name) {
         String value = substituteVars(props, name);
         String evaluate = evaluate(value);
-        logger.debug("EL: {} => {} =>", new String[]{name, value, evaluate});
+        logger.trace("EL: {} => {} =>", new String[]{name, value, evaluate});
         return evaluate;
     }
 
