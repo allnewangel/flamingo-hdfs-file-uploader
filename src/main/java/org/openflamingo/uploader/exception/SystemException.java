@@ -59,4 +59,13 @@ public class SystemException extends RuntimeException {
     public SystemException(Throwable cause) {
         super(cause);
     }
+
+    /**
+     * Root Cause를 반환한다.
+     *
+     * @return Root Cause
+     */
+    public Throwable getRootCause() {
+        return this.getRootCause();
+    }
 }

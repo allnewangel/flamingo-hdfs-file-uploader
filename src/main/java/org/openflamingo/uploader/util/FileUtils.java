@@ -20,7 +20,6 @@ package org.openflamingo.uploader.util;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.openflamingo.uploader.exception.SystemException;
-import org.slf4j.helpers.MessageFormatter;
 
 import java.io.File;
 import java.io.InputStream;
@@ -118,7 +117,7 @@ public class FileUtils {
      * @return Input Stream
      */
     public static InputStream openStream(String url) {
-        String message = MessageFormatter.format("URL '{}' 리소스에 대해서 Input Stream을 얻을 수 없습니다.", url).getMessage();
+        String message = ExceptionUtils.getMessage("URL '{}' 리소스에 대해서 Input Stream을 얻을 수 없습니다.", url);
         try {
             return new URL(url).openStream();
         } catch (MalformedURLException ex) {
@@ -142,7 +141,7 @@ public class FileUtils {
      * @return 존재하는 경우 <tt>true</tt>
      */
     public static boolean isExist(String url) {
-        String message = MessageFormatter.format("URL '{}' 리소스에 대해서 Input Stream을 얻을 수 없습니다.", url).getMessage();
+        String message = ExceptionUtils.getMessage("URL '{}' 리소스에 대해서 Input Stream을 얻을 수 없습니다.", url);
         InputStream inputStream = null;
         try {
             inputStream = new URL(url).openStream();

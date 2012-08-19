@@ -8,8 +8,8 @@
 	<packaging>jar</packaging>
 	<version>0.1-SNAPSHOT</version>
 	<name>Flamingo HDFS File Uploader</name>
-	<description></description>
-	<url>http://www.openflamingo.org</url>
+	<description>Flamingo HDFS File Uploader</description>
+	<url>https://github.com/fharenheit/flamingo-hdfs-file-uploader</url>
 	<inceptionYear>2012</inceptionYear>
 
 	<properties>
@@ -21,7 +21,6 @@
 		<javadoc.locale>ko_KR</javadoc.locale>
 
 		<!-- Plugin -->
-		<wagon.ftp>1.0-alpha-6</wagon.ftp>
 		<atlassian.clover2.plugin>3.0.5</atlassian.clover2.plugin>
 		<project.info.report.plugin>2.2</project.info.report.plugin>
 		<maven.eclipse.plugin>2.8</maven.eclipse.plugin>
@@ -36,10 +35,10 @@
 		<surefire.report.plugin.version>2.8</surefire.report.plugin.version>
 		<javadoc.plugin.version>2.7</javadoc.plugin.version>
 		<taglist.plugin.version>2.4</taglist.plugin.version>
-		<jetty.plugin.version>6.1.26</jetty.plugin.version>
+		<exec.plugin.version>1.2.1</exec.plugin.version>
 
 		<!-- Dependencies -->
-		<hadoop.version>0.20.205.0</hadoop.version>
+		<hadoop.version>1.0.3</hadoop.version>
 		<pig.version>0.10.0</pig.version>
 		<log4j.version>1.2.16</log4j.version>
 		<slf4j.version>1.6.4</slf4j.version>
@@ -74,7 +73,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.2.1</version>
+				<version>${exec.plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -256,7 +255,7 @@
 		<!-- ======== -->
 
 		<dependency>
-			<groupId>org.openflamingo.org.apache.hadoop</groupId>
+			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-core</artifactId>
 			<version>${hadoop.version}</version>
 		</dependency>
@@ -564,14 +563,14 @@
 	</dependencies>
 
 	<ciManagement>
-		<system>Atlassian Bamboo</system>
-		<url>http://bamboo.openflamingo.org</url>
+		<system>Jetbrains TeamCity</system>
+		<url>http://115.68.14.50:8111/</url>
 	</ciManagement>
 
 	<scm>
-		<connection>scm:svn:http://svn.code.sf.net/p/hadoop-manager/svn/trunk</connection>
-		<developerConnection>scm:svn:https://svn.code.sf.net/p/hadoop-manager/svn/trunk</developerConnection>
-		<url>http://fisheye.openflamingo.org</url>
+		<connection>scm:git:https://github.com/fharenheit/flamingo-hdfs-file-uploader.git</connection>
+		<developerConnection>scm:git:https://github.com/fharenheit/flamingo-hdfs-file-uploader.git</developerConnection>
+		<url>https://github.com/fharenheit/flamingo-hdfs-file-uploader</url>
 	</scm>
 
 	<distributionManagement>
@@ -627,14 +626,6 @@
 			<name>maven.org Plugin Repository for Maven</name>
 			<url>http://repo1.maven.org/maven2/org/apache/maven/plugins/</url>
 			<layout>default</layout>
-		</pluginRepository>
-		<pluginRepository>
-			<id>jstd-maven-plugin google code repo</id>
-			<url>http://jstd-maven-plugin.googlecode.com/svn/maven2</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>jsdoctk2</id>
-			<url>http://jsdoctk-plugin.googlecode.com/svn/repo</url>
 		</pluginRepository>
 	</pluginRepositories>
 

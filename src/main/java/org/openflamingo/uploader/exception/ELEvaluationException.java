@@ -31,6 +31,15 @@ public class ELEvaluationException extends SystemException {
      * 기본 생성자.
      *
      * @param message 예외 메시지
+     */
+    public ELEvaluationException(String message) {
+        super(message);
+    }
+
+    /**
+     * 기본 생성자.
+     *
+     * @param message 예외 메시지
      * @param cause   예외 원인
      */
     public ELEvaluationException(String message, Throwable cause) {

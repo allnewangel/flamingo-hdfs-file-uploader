@@ -22,7 +22,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.openflamingo.uploader.exception.FileSystemException;
-import org.slf4j.helpers.MessageFormatter;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -134,8 +133,7 @@ public class HdfsUtils {
         try {
             return !fs.isFile(new Path(path));
         } catch (Exception ex) {
-            String message = MessageFormatter.format("지정한 경로 '{}'에 접근할 수 있습니다.", path).getMessage();
-            throw new FileSystemException(message, ex);
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 경로 '{}'에 접근할 수 있습니다.", path), ex);
         }
     }
 
@@ -150,8 +148,7 @@ public class HdfsUtils {
         try {
             return fs.isFile(new Path(path));
         } catch (Exception ex) {
-            String message = MessageFormatter.format("지정한 경로 '{}'에 접근할 수 있습니다.", path).getMessage();
-            throw new FileSystemException(message, ex);
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 경로 '{}'에 접근할 수 있습니다.", path), ex);
         }
     }
 
@@ -166,8 +163,7 @@ public class HdfsUtils {
         try {
             return fs.delete(new Path(path), true);
         } catch (Exception ex) {
-            String message = MessageFormatter.format("지정한 경로 '{}'을 삭제할 수 없습니다.", path).getMessage();
-            throw new FileSystemException(message, ex);
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 경로 '{}'을 삭제할 수 없습니다.", path), ex);
         }
     }
 
@@ -182,8 +178,7 @@ public class HdfsUtils {
         try {
             return FileSystem.mkdirs(fs, new Path(path), FsPermission.getDefault());
         } catch (Exception ex) {
-            String message = MessageFormatter.format("지정한 경로 '{}'을 생성할 수 없습니다.", path).getMessage();
-            throw new FileSystemException(message, ex);
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 경로 '{}'을 생성할 수 없습니다.", path), ex);
         }
     }
 
@@ -207,8 +202,7 @@ public class HdfsUtils {
                 throw new IllegalArgumentException("로딩할 파일이 " + MAX_SIZE + " bytes를 넘습니다.");
             }
         } catch (Exception ex) {
-            String message = MessageFormatter.format("지정한 경로 '{}'에 접근할 수 있습니다.", path).getMessage();
-            throw new FileSystemException(message, ex);
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 경로 '{}'에 접근할 수 있습니다.", path), ex);
         }
 
         FSDataInputStream is = null;
@@ -216,8 +210,7 @@ public class HdfsUtils {
             is = fs.open(new Path(path));
             return IOUtils.toString(is, encoding);
         } catch (IOException e) {
-            String message = MessageFormatter.format("지정한 '{}' 파일을 로딩할 수 없습니다.", path).getMessage();
-            throw new FileSystemException(message, e);
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 '{}' 파일을 로딩할 수 없습니다.", path), e);
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -254,7 +247,7 @@ public class HdfsUtils {
      */
     public static String getIpAddressFromPath(String path) {
         if (!path.startsWith(HDFS_URL_PREFIX)) {
-            throw new FileSystemException(MessageFormatter.format("지정한 경로 '{}'이 유효하지 않습니다.", path).getMessage());
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 경로 '{}'이 유효하지 않습니다.", path));
         }
         String[] split = org.springframework.util.StringUtils.delete(path, HDFS_URL_PREFIX).split(":");
         return split[0];
@@ -268,7 +261,7 @@ public class HdfsUtils {
      */
     public static String getPortFromPath(String path) {
         if (!path.startsWith(HDFS_URL_PREFIX)) {
-            throw new FileSystemException(MessageFormatter.format("지정한 경로 '{}'이 유효하지 않습니다.", path).getMessage());
+            throw new FileSystemException(ExceptionUtils.getMessage("지정한 경로 '{}'이 유효하지 않습니다.", path));
         }
         String[] split = org.springframework.util.StringUtils.delete(path, HDFS_URL_PREFIX).split(":");
         if (split.length != 2) {

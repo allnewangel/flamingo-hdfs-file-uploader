@@ -18,9 +18,9 @@
 package org.openflamingo.uploader.el;
 
 import org.apache.commons.el.ExpressionEvaluatorImpl;
-import org.slf4j.helpers.MessageFormatter;
+import org.openflamingo.uploader.exception.ELEvaluationException;
+import org.openflamingo.uploader.util.ExceptionUtils;
 
-import javax.servlet.jsp.el.ELException;
 import javax.servlet.jsp.el.ExpressionEvaluator;
 import javax.servlet.jsp.el.FunctionMapper;
 import javax.servlet.jsp.el.VariableResolver;
@@ -88,7 +88,7 @@ public class ELEvaluator {
          */
         public void addFunction(String prefix, String functionName, Method method) {
             if ((method.getModifiers() & (Modifier.PUBLIC | Modifier.STATIC)) != (Modifier.PUBLIC | Modifier.STATIC)) {
-                throw new IllegalArgumentException(MessageFormatter.format("메소드 '{}'은 반드시 public 또는 static이어야 합니다.", method).getMessage());
+                throw new IllegalArgumentException(ExceptionUtils.getMessage("메소드 '{}'은 반드시 public 또는 static이어야 합니다.", method));
             }
             prefix = (prefix.length() > 0) ? prefix + ":" : "";
             functions.put(prefix + functionName, method);
@@ -99,12 +99,10 @@ public class ELEvaluator {
          *
          * @param name 변수명
          * @return 변수의 값
-         * @throws javax.servlet.jsp.el.ELException
-         *          thrown if the variable is not defined in the context.
          */
-        public Object resolveVariable(String name) throws ELException {
+        public Object resolveVariable(String name) {
             if (!vars.containsKey(name)) {
-                throw new ELException(MessageFormatter.format("variable [{}] cannot be resolved", name).getMessage());
+                throw new ELEvaluationException(ExceptionUtils.getMessage("변수 '{}'을 해석할 수 없습니다.", name));
             }
             return vars.get(name);
         }
@@ -209,7 +207,7 @@ public class ELEvaluator {
         try {
             current.set(this);
             return (T) evaluator.evaluate(expr, clazz, context, context);
-        } catch (ELException ex) {
+        } catch (ELEvaluationException ex) {
             if (ex.getRootCause() instanceof Exception) {
                 throw (Exception) ex.getRootCause();
             } else {
@@ -226,15 +224,14 @@ public class ELEvaluator {
      * @param expr  evaluate할 EL Expression
      * @param clazz EL Expression의 반환 유형
      * @return EL Expression을 evaluate한 결과 객체
-     * @throws org.openflamingo.uploader.exception.ELException
+     * @throws org.openflamingo.uploader.exception.ELEvaluationException
      *          EL 함수를 실행하던 도중 예외가 발생하거나, EL Expression을 해석할 수 없는 경우
      */
     public <T> T evaluateIgnore(String expr, Class<T> clazz) {
         try {
             return evaluate(expr, clazz);
         } catch (Exception ex) {
-            String message = MessageFormatter.format("EL을 처리할 수 없습니다. 원인 : {}", ex.getMessage()).getMessage();
-            throw new org.openflamingo.uploader.exception.ELException(message, ex);
+            throw new ELEvaluationException(ExceptionUtils.getMessage("EL을 처리할 수 없습니다. 원인 : {}", ex.getMessage()), ex);
         }
     }
 }
