@@ -77,10 +77,11 @@ public class ConfigurationFactoryBean implements InitializingBean, FactoryBean<F
             logger.info("'-Duploader.job.xml={}'으로 지정한 설정 파일을 사용합니다.", System.getProperty("uploader.job.xml"));
             configurationFile = ResourceUtils.getResource(System.getProperty("uploader.job.xml"));
         } else if (!StringUtils.isEmpty(jobXml)) {
-            logger.info("'config.properties 파일에 지정한 uploader.job.xml의 값인 로컬 파일 시스템의 절대 경로로 지정한 설정 파일을 사용합니다.", jobXml);
+            logger.info("config.properties 파일에 지정한 uploader.job.xml의 값인 로컬 파일 시스템의 절대 경로({})로 지정한 설정 파일을 사용합니다.", jobXml);
             configurationFile = ResourceUtils.getResource(jobXml);
         } else {
-            configurationFile = new ClassPathResource("classpath:job.xml");
+            logger.info("옵션이 별도로 지정되어 있지 않아서 CLASSPATH에서 /job.xml 파일을 기본으로 로딩합니다.", jobXml);
+            configurationFile = new ClassPathResource("classpath:/job.xml");
         }
 
         String xml = ResourceUtils.getResourceTextContents(configurationFile);
