@@ -184,7 +184,7 @@ public class JobContextImpl implements JobContext {
                 logger.warn("System Properties에서 파라미터에 접근할 수 없습니다.", se);
             }
             if (val == null) {
-                val = getValue(var);
+                val = substituteVars(props, var);
             }
             if (val == null) {
                 return eval; // return literal ${var}: var is unbound
@@ -203,7 +203,7 @@ public class JobContextImpl implements JobContext {
      * @return Property의 <code>name</code>에 해당하는 값, 존재하지 않는 경우 <code>null</code>
      */
     public String getValue(String name) {
-        return substituteVars(props, name);
+        return evaluate(substituteVars(props, name));
     }
 
     @Override
