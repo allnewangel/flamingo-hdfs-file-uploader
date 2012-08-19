@@ -22,8 +22,6 @@
 	<job name="Seoul_Rain" description="서울시 공공 데이터 - 강수량 데이터 수집 Job">
 		<schedule>
 			<cronExpression>* 1 * * * ?</cronExpression>
-			<start datePattern="yyyyMMdd" date="${currentDate}"/>
-			<end datePattern="yyyyMMdd" date="${tommorow('yyyyMMdd')}"/>
 		</schedule>
 		<policy>
 			<ingress>
