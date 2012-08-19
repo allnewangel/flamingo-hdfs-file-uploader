@@ -27,6 +27,7 @@ import org.openflamingo.uploader.jaxb.Cluster;
 import org.openflamingo.uploader.jaxb.Flamingo;
 import org.openflamingo.uploader.jaxb.GlobalVariable;
 import org.openflamingo.uploader.jaxb.Property;
+import org.openflamingo.uploader.util.ExceptionUtils;
 import org.openflamingo.uploader.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,6 +229,7 @@ public class JobContextImpl implements JobContext {
         try {
             return evaluator.evaluate(value, String.class);
         } catch (Exception e) {
+            logger.warn(ExceptionUtils.getMessage("EL이 포함되어 있는 문자열({})을 해석할 수 없습니다.", value), e);
             return value;
         }
     }
