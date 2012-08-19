@@ -43,6 +43,7 @@
 		<javadoc.plugin.version>2.7</javadoc.plugin.version>
 		<taglist.plugin.version>2.4</taglist.plugin.version>
 		<exec.plugin.version>1.2.1</exec.plugin.version>
+		<assembly.plugin.version>2.3</assembly.plugin.version>
 
 		<!-- Dependencies -->
 		<hadoop.version>1.0.3</hadoop.version>
@@ -76,6 +77,16 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${compiler.plugin.version}</version>
+				<configuration>
+					<source>6</source>
+					<target>6</target>
+					<encoding>${output.encoding}</encoding>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -240,17 +251,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>client</id>
-						<configuration>
-							<descriptor>${basedir}/src/main/assembly/src.xml</descriptor>
-						</configuration>
-						<goals>
-							<goal>assembly</goal>
-						</goals>
-					</execution>
-				</executions>
+				<version>${assembly.plugin.version}</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assembly/src.xml</descriptor>
+					</descriptors>
+					<archive>
+						<manifest>
+							<mainClass>org.openflamingo.uploader.Starter</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

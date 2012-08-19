@@ -4,6 +4,7 @@
 	<id>bin</id>
 	<formats>
 		<format>zip</format>
+		<format>tar.gz</format>
 	</formats>
 	<includeBaseDirectory>true</includeBaseDirectory>
 	<fileSets>
@@ -23,7 +24,7 @@
 			<outputDirectory>apidoc</outputDirectory>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/script</directory>
+			<directory>src/script</directory>
 			<outputDirectory></outputDirectory>
 			<includes>
 				<include>*.sh</include>
@@ -36,6 +37,13 @@
 				<include>*.xml</include>
 				<include>*.xsd</include>
 				<include>*.properties</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/test/resources</directory>
+			<outputDirectory>conf</outputDirectory>
+			<includes>
+				<include>example.xml</include>
 			</includes>
 		</fileSet>
 	</fileSets>
