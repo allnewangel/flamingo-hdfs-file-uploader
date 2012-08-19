@@ -98,13 +98,13 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
             int triggerPriority = job.getSchedule().getTriggerPriority() == null ? Trigger.DEFAULT_PRIORITY : job.getSchedule().getTriggerPriority().intValue();
             String timezone = job.getSchedule().getTimezone() == null ? null : job.getSchedule().getTimezone();
 
-            logger.info("Uploader Job '{}'을 Cron Expression '{}'으로 등록합니다.", new Object[]{job.getName(), cronExpression, start, end});
+            logger.info("Job '{}'을 Cron Expression '{}'으로 등록합니다.", new Object[]{job.getName(), cronExpression, start, end});
 
             startJob(jobContext, job.getName(), job.getName(), cronExpression, start, end, misfireInstruction, triggerPriority, timezone, dataMap);
 
             logger.info("Job '{}'을 스케줄러에 등록하였습니다.", new Object[]{job.getName(), cronExpression, start, end});
         }
-        logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 Uploader Job이 진행됩니다.");
+        logger.info("스케줄링을 완료하였습니다. 이제부터 정해진 시간에 Job이 진행됩니다.");
     }
 
     /**
@@ -115,14 +115,18 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
      */
     private void setMisfireInstruction(CronScheduleBuilder scheduleBuilder, String misfireInstruction) {
         if (StringUtils.isEmpty(misfireInstruction)) {
+            logger.info("Cron 스케줄링의 Misfire Instruction이 지정되어 있지 않아서 MISFIRE_INSTRUCTION_SMART_POLICY 정책을 적용했습니다.");
             return;
         }
         if ("MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY".equals(misfireInstruction)) {
+            logger.info("Cron 스케줄링의 Misfire Instruction으로 MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY 정책을 적용했습니다.");
             scheduleBuilder.withMisfireHandlingInstructionDoNothing();
         } else if ("MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY".equals(misfireInstruction)) {
             scheduleBuilder.withMisfireHandlingInstructionIgnoreMisfires();
+            logger.info("Cron 스케줄링의 Misfire Instruction으로 MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY 정책을 적용했습니다.");
         } else if ("MISFIRE_INSTRUCTION_FIRE_ONCE_NOW".equals(misfireInstruction)) {
             scheduleBuilder.withMisfireHandlingInstructionFireAndProceed();
+            logger.info("Cron 스케줄링의 Misfire Instruction으로 MISFIRE_INSTRUCTION_FIRE_ONCE_NOW 정책을 적용했습니다.");
         }
     }
 
@@ -134,8 +138,10 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
      */
     private int getTriggerPriority(int priority) {
         if (priority > 0 && priority < 5) {
+            logger.info("Cron 스케줄링의 우선순위는 {} 입니다.", priority);
             return priority;
         }
+        logger.info("Cron 스케줄링의 우선순위는 {} 입니다.", Trigger.DEFAULT_PRIORITY);
         return Trigger.DEFAULT_PRIORITY;
     }
 
@@ -148,6 +154,7 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
      */
     private void setTimezone(JobContext jobContext, CronScheduleBuilder scheduleBuilder, String timezone) {
         if (StringUtils.isEmpty(timezone)) {
+            logger.info("Cron 스케줄링의 Timezone은 {}입니다.", "Asia/Seoul");
             scheduleBuilder.inTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
             return;
         }
@@ -155,11 +162,14 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
         try {
             evaluated = jobContext.getValue(timezone);
             if (StringUtils.isEmpty(timezone)) {
+                logger.info("Cron 스케줄링의 Timezone은 {}입니다.", "Asia/Seoul");
                 scheduleBuilder.inTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
             } else {
+                logger.info("Cron 스케줄링의 Timezone은 {}입니다.", evaluated);
                 scheduleBuilder.inTimeZone(TimeZone.getTimeZone(evaluated));
             }
         } catch (Exception ex) {
+            logger.info("Cron 스케줄링의 Timezone은 {}입니다.", "Asia/Seoul");
             scheduleBuilder.inTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         }
     }
@@ -259,13 +269,29 @@ public class JobRegister implements InitializingBean, ApplicationContextAware {
                 .withPriority(getTriggerPriority(triggerPriority))
                 .startNow()
                 .forJob(jobName, jobGroupName);
+
             if (start != null) {
+                // 시작 시간을 설정한 경우 XML의 시작 시간을 사용한다.
+                logger.info("Cron 스케줄링의 시작 시간은 {}입니다.", start);
                 triggerBuilder.startAt(start);
             } else {
                 // 시작시간이 설정되어 있지 않다면 현재 시간부로 시작한다.
-                triggerBuilder.startAt(new Date());
+                logger.info("Cron 스케줄링의 시작 시간은 {}입니다.", jobContext.getStartDate());
+                triggerBuilder.startAt(jobContext.getStartDate());
             }
-            if (end != null) triggerBuilder.endAt(end);
+
+            if (end != null) {
+                // 종료 시간을 설정한 경우 XML의 종료 시간을 사용한다.
+                if (DateUtils.getDiffSeconds(end, jobContext.getStartDate()) < 0) {
+                    throw new SystemException("종료 시간이 현재 시간보다 과거 시간이므로 스케줄링할 수 없습니다.");
+                }
+
+                logger.info("Cron 스케줄링의 종료 시간은 {}입니다.", end);
+                triggerBuilder.endAt(end);
+            } else {
+                logger.info("Cron 스케줄링의 종료 시간이 설정되어 있지 않습니다..");
+            }
+
             CronTrigger trigger = triggerBuilder.build();
             logger.info("등록한 배치 작업의 실행 주기를 Cron Expression '{}'으로 등록하였습니다.", cronExpression);
 
