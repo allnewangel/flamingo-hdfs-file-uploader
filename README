@@ -45,7 +45,7 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
             xsi:schemaLocation="http://www.openflamingo.org/schema/uploader flamingo-uploader-1.0.xsd"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <description>Seoul Public Data Collection Job</description>
+    <description>Seoul Public Data - Rain Collection Job</description>
 
     <clusters>
       <cluster name="dev" description="Development Hadoop Cluster">
@@ -58,32 +58,27 @@ Flamingo HDFS File Uploader는 Local, HDFS, FTP 등과 같은 DataSource의 파�
       <globalVariable name="currentDate" value="${dateFormat('yyyyMMdd')}" description="string"/>
     </globalVariables>
 
-    <job name="Seoul_Rain" description="Seoul Public Data - Rain Job">
+    <job name="Seoul_Rain" description="Seoul Public Data - Rain Collection Job">
       <schedule>
-        <!-- 매 1분마다 동작 -->
         <cronExpression>0 * * * * ?</cronExpression>
-        <!-- 오늘부터 동작 -->
-        <start datePattern="yyyyMMdd" data="${currentDate}"/>
-        <!-- 5일후까지 동작 -->
-        <end datePattern="yyyyMMdd" date="${day('yyyyMMdd', 5)}"/>
       </schedule>
       <policy>
         <ingress>
           <local>
             <sourceDirectory conditionType="antPattern">
-              <path>/home/hadoop/input/rain</path>
+              <path>/home/${user.name}/rain</path>
               <condition>rain_*.txt</condition>
             </sourceDirectory>
-            <workingDirectory>/tmp/uploader/work</workingDirectory>
-            <completeDirectory>/tmp/uploader/complete</completeDirectory>
+            <workingDirectory>/tmp/${user.name}/work</workingDirectory>
+            <completeDirectory>/tmp/${user.name}/complete</completeDirectory>
             <removeAfterCopy>false</removeAfterCopy>
-            <errorDirectory>/tmp/uploader/error</errorDirectory>
+            <errorDirectory>/tmp/${user.name}/error</errorDirectory>
           </local>
         </ingress>
         <outgress>
           <hdfs cluster="dev">
-            <targetPath>/input</targetPath>
-            <stagingPath>/stage</stagingPath>
+            <targetPath>/rain/upload/${user.name}/${dateFormat('yyyy')}/${dateFormat('MM')}/${dateFormat('dd')}</targetPath>
+            <stagingPath>/rain/stage/${user.name}/${currentDate}</stagingPath>
           </hdfs>
         </outgress>
       </policy>
