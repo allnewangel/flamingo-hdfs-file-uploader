@@ -144,7 +144,7 @@ public class LocalToHdfsHandler implements Handler {
 
                 // 스테이징 디렉토리에 업로드할 파일의 해쉬코드를 계산한다.
                 int hash = Math.abs((workingFile.getPath().toString() + processingFile.toString()).hashCode()) + Integer.parseInt(JVMIDUtils.generateUUID());
-                if(hash < 0) hash = -hash;
+                if (hash < 0) hash = -hash;
                 jobLogger.debug("스테이징 디렉토리 '{}'에 업로드할 파일 '{}'의 해쉬 코드 '{}'을 생성했습니다.", new Object[]{
                     stagingDirectory, processingFile.getName(), hash
                 });
@@ -253,9 +253,12 @@ public class LocalToHdfsHandler implements Handler {
      * @throws IOException 파일 시스템에 접근할 수 없거나, 파일을 이동할 수 없는 경우
      */
     public List<FileStatus> copyToWorkingDirectory() throws IOException {
+        // 파일을 선택하기 위한 조건을 판단하기 위해서 사용하는 Selector Pattern을 얻어온다.
         SelectorPattern selectorPattern = SelectorPatternFactory.getSelectorPattern(
             this.local.getSourceDirectory().getConditionType(),
-            jobContext.getValue(this.local.getSourceDirectory().getCondition()), jobContext);
+            jobContext.getValue(this.local.getSourceDirectory().getCondition()),
+            jobContext
+        );
         String sourceDirectory = correctPath(jobContext.getValue(local.getSourceDirectory().getPath()));
         String workingDirectory = correctPath(jobContext.getValue(local.getWorkingDirectory()));
 
@@ -263,11 +266,13 @@ public class LocalToHdfsHandler implements Handler {
         List<FileStatus> files = new LinkedList<FileStatus>();
         for (FileStatus sourceFile : sourceDirectoryFS.listStatus(new Path(sourceDirectory))) {
             if (!sourceFile.isDir()) {
-                if (sourceFile.getPath().getName().startsWith(".") || sourceFile.getPath().getName().startsWith("_") || sourceFile.getPath().getName().endsWith(".work")) {
+                if (sourceFile.getPath().getName().startsWith(".")
+                    || sourceFile.getPath().getName().startsWith("_")
+                    || sourceFile.getPath().getName().endsWith(".work")) {
                     jobLogger.info("숨김 파일 '{}'은 처리하지 않고 넘어갑니다.", sourceFile.getPath());
                     continue;
                 }
-                if (selectorPattern.accept(FileUtils.getFilename(sourceFile.getPath().getName()))) {
+                if (selectorPattern.accept(sourceFile.getPath())) {
                     // 파일을 작업 디렉토리로 이동한다.
                     Path workPath = new Path(workingDirectory, sourceFile.getPath().getName());
                     sourceDirectoryFS.rename(sourceFile.getPath(), workPath);

@@ -20,7 +20,7 @@
  */
 package org.openflamingo.uploader.policy;
 
-import org.openflamingo.uploader.JobContext;
+import org.apache.hadoop.fs.Path;
 
 /**
  * Input File Selection Pattern Interface.
@@ -33,9 +33,9 @@ public interface SelectorPattern {
     /**
      * 지정한 파일을 사용할지 여부를 결정한다.
      *
-     * @param filename 경로를 제외한 순수 파일명
+     * @param path 경로
      * @return 파일을 사용하는 경우 <tt>true</tt>
      */
-    boolean accept(String filename);
+    boolean accept(Path path);
 
 }

@@ -20,21 +20,21 @@
  */
 package org.openflamingo.uploader.policy;
 
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.openflamingo.uploader.JobContext;
+import org.openflamingo.uploader.exception.FileSystemException;
+import org.openflamingo.uploader.util.ExceptionUtils;
+import org.openflamingo.uploader.util.FileSystemUtils;
 
 /**
- * Start With File Selection Pattern.
+ * File Size Selection Pattern.
  *
  * @author Edward KIM
- * @since 0.1
+ * @since 0.2
  */
-public class StartWithPattern implements SelectorPattern {
-
-    /**
-     * 파일명이 지정한 문자열로 시작하는지 확인하기 위한 패턴
-     */
-    private String pattern;
+public class SizePattern implements SelectorPattern {
 
     /**
      * HDFS File Uploader Job Context
@@ -42,19 +42,31 @@ public class StartWithPattern implements SelectorPattern {
     private JobContext jobContext;
 
     /**
+     * File Size
+     */
+    String pattern;
+
+    /**
      * 기본 생성자.
      *
-     * @param pattern Start With에 적용할 문자열 패턴
+     * @param pattern    파일의 크기
      * @param jobContext Job Context
      */
-    public StartWithPattern(String pattern, JobContext jobContext) {
+    public SizePattern(String pattern, JobContext jobContext) {
         this.pattern = pattern;
         this.jobContext = jobContext;
     }
 
     @Override
     public boolean accept(Path path) {
-        String evaluated = jobContext.getValue(path.getName());
-        return evaluated.startsWith(pattern);
+        try {
+            String evaluated = jobContext.getValue(path.getName());
+            long size = Long.parseLong(evaluated);
+            FileSystem fs = FileSystemUtils.getFileSystem(path);
+            FileStatus fileStatus = fs.getFileStatus(path);
+            return fileStatus.getLen() > size ? true : false;
+        } catch (Exception ex) {
+            throw new FileSystemException(ExceptionUtils.getMessage("파일({})의 크기를 확인할 수 없습니다.", path), ex);
+        }
     }
 }

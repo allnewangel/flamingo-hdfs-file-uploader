@@ -20,6 +20,7 @@
  */
 package org.openflamingo.uploader.policy;
 
+import org.apache.hadoop.fs.Path;
 import org.openflamingo.uploader.JobContext;
 
 import java.util.regex.Matcher;
@@ -54,8 +55,8 @@ public class RegExPattern implements SelectorPattern {
     }
 
     @Override
-    public boolean accept(String filename) {
-        String evaluated = jobContext.getValue(filename);
+    public boolean accept(Path path) {
+        String evaluated = jobContext.getValue(path.getName());
         Matcher matcher = pattern.matcher(evaluated);
         return matcher.find();
     }

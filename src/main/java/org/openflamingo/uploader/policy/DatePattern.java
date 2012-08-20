@@ -20,6 +20,7 @@
  */
 package org.openflamingo.uploader.policy;
 
+import org.apache.hadoop.fs.Path;
 import org.openflamingo.uploader.JobContext;
 
 /**
@@ -43,7 +44,8 @@ public class DatePattern implements SelectorPattern {
     /**
      * 기본 생성자.
      *
-     * @param pattern 문자열 패턴
+     * @param pattern    문자열 패턴
+     * @param jobContext Job Context
      */
     public DatePattern(String pattern, JobContext jobContext) {
         this.pattern = pattern;
@@ -51,8 +53,8 @@ public class DatePattern implements SelectorPattern {
     }
 
     @Override
-    public boolean accept(String filename) {
-        String evaluated = jobContext.getValue(filename);
+    public boolean accept(Path path) {
+        String evaluated = jobContext.getValue(path.getName());
         String dateFormat = jobContext.getValue(pattern);
         return org.springframework.util.StringUtils.countOccurrencesOf(evaluated, dateFormat) > 0;
     }

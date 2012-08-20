@@ -45,6 +45,7 @@ public class SelectorPatternFactory {
         patterns.put("antPattern", AntPathPattern.class);
         patterns.put("datePattern", DatePattern.class);
         patterns.put("regEx", RegExPattern.class);
+        patterns.put("size", SizePattern.class);
     }
 
     /**

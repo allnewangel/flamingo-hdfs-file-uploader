@@ -20,6 +20,7 @@
  */
 package org.openflamingo.uploader.policy;
 
+import org.apache.hadoop.fs.Path;
 import org.openflamingo.uploader.JobContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,8 @@ public class AntPathPattern implements SelectorPattern {
     /**
      * 기본 생성자.
      *
-     * @param pattern Start With에 적용할 문자열 패턴
+     * @param pattern    Ant Path에 적용할 문자열 패턴
+     * @param jobContext Job Context
      */
     public AntPathPattern(String pattern, JobContext jobContext) {
         this.pattern = pattern;
@@ -59,10 +61,10 @@ public class AntPathPattern implements SelectorPattern {
     }
 
     @Override
-    public boolean accept(String filename) {
-        String evaluated = jobContext.getValue(filename);
+    public boolean accept(Path path) {
+        String evaluated = jobContext.getValue(path.getName());
         boolean matched = new AntPathMatcher().match(pattern, evaluated);
-        if(!matched) {
+        if (!matched) {
             logger.debug("'{}' 파일은 Ant Path Pattern '{}'와 일치하지 않아서 사용하지 않습니다.", evaluated, pattern);
         }
         return matched;
