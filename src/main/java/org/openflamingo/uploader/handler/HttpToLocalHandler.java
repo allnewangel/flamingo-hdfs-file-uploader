@@ -180,7 +180,7 @@ public class HttpToLocalHandler implements Handler {
             }
         }
 
-        if (StringUtils.isEmpty(charSet)) {
+        if (!StringUtils.isEmpty(charSet)) {
             params.setContentCharset(charSet);
         }
 
