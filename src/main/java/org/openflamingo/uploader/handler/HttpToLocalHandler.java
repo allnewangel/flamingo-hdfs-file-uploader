@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import sun.misc.IOUtils;
+import org.springframework.util.FileCopyUtils;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -174,7 +174,7 @@ public class HttpToLocalHandler implements Handler {
         ClientHttpResponse response = null;
         try {
             response = request.execute();
-            responseBodyAsString = new String(IOUtils.readFully(response.getBody(), 4096, false), Charset.defaultCharset());
+            responseBodyAsString = new String(FileCopyUtils.copyToByteArray(response.getBody()), Charset.defaultCharset());
             jobLogger.debug("HTTP 요청의 응답 메시지는 다음과 같습니다.\n{}", responseBodyAsString);
             jobLogger.info("HTTP 요청을 완료하였습니다. 상태 코드는 '{}({})'입니다.", response.getStatusText(), response.getRawStatusCode());
             if (response.getRawStatusCode() != HttpStatus.ORDINAL_200_OK) {
