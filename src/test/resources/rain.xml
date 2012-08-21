@@ -39,7 +39,7 @@
 			<outgress>
 				<hdfs cluster="dev">
 					<targetPath>/rain/upload/${user.name}/${dateFormat('yyyy')}/${dateFormat('MM')}/${dateFormat('dd')}</targetPath>
-					<stagingPath>/rain/stage/${user.name}/${currentDate}</stagingPath>
+					<stagingPath>/rain/stage/${user.name}/${dateFormat('yyyyMMdd')}</stagingPath>
 				</hdfs>
 			</outgress>
 		</policy>
