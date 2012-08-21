@@ -479,10 +479,7 @@
 						</xsd:attribute>
 					</xsd:complexType>
 				</xsd:element>
-				<xsd:element name="charSet" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-				<xsd:element name="contentType" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="body" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-				<xsd:element name="timeout" type="xsd:int" default="500"/>
 				<xsd:element ref="headers" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="target">
 					<xsd:complexType>

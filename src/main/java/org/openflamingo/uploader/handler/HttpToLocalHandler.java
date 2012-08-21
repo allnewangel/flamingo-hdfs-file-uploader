@@ -20,13 +20,6 @@
  */
 package org.openflamingo.uploader.handler;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -40,11 +33,16 @@ import org.openflamingo.uploader.util.FileSystemScheme;
 import org.openflamingo.uploader.util.FileSystemUtils;
 import org.openflamingo.uploader.util.StringUtils;
 import org.slf4j.Logger;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import sun.misc.IOUtils;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.openflamingo.uploader.util.FileSystemUtils.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 /**
  * HTTP URL 호출을 통해 얻는 결과물을 파일로 저장하는 핸들러.
@@ -122,7 +120,6 @@ public class HttpToLocalHandler implements Handler {
         String filename = jobContext.getValue(http.getTarget().getFilename());
         String target = jobContext.getValue(http.getTarget().getDirectory());
         if ("LOCAL".equals(type)) {
-            jobLogger.info("HTTP");
             String targetPath = correctPath(target);
             FileSystem fs = FileSystemUtils.getFileSystem(targetPath);
             saveResponseToFS(response, fs, targetPath, filename);
@@ -140,33 +137,25 @@ public class HttpToLocalHandler implements Handler {
      *
      * @param http HTTP
      * @return HTTP Response String
+     * @throws Exception HTTP 호출이 정상적으로 완료되지 않은 경우
      */
-    private String getResponse(Http http) throws IOException {
+    private String getResponse(Http http) throws Exception {
         jobLogger.info("HTTP URL을 호출하기 위해 관련 파라미터 정보를 처리합니다.");
-        HttpClient httpClient = new HttpClient();
-        HttpClientParams params = httpClient.getParams();
 
         String url = jobContext.getValue(http.getUrl());
         String method = jobContext.getValue(http.getMethod().getType());
         String body = jobContext.getValue(http.getBody());
-        String contentType = jobContext.getValue(http.getContentType(), DEFAULT_CONTENT_TYPE);
-        String charSet = jobContext.getValue(http.getCharSet(), DEFAULT_CHAR_SET);
 
         jobLogger.info("HTTP URL Information :");
         jobLogger.info("\tURL = {}", url);
         jobLogger.info("\tMethod = {}", method);
-        jobLogger.info("\tContent Type = {}", contentType);
-        jobLogger.info("\tCharacter Set = {}", charSet);
-        if (!StringUtils.isEmpty(body)) {
-            jobLogger.info("\tBody = \n{}", charSet);
-        }
 
-        HttpMethod httpMethod = null;
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        ClientHttpRequest request = null;
         if ("POST".equals(method)) {
-            httpMethod = new PostMethod(url);
-            ((PostMethod) httpMethod).setRequestEntity(new StringRequestEntity(body, contentType, charSet));
+            request = factory.createRequest(new java.net.URI(url), POST);
         } else {
-            httpMethod = new GetMethod(url);
+            request = factory.createRequest(new java.net.URI(url), GET);
         }
 
         if (http.getHeaders() != null && http.getHeaders().getHeader().size() > 0) {
@@ -175,26 +164,30 @@ public class HttpToLocalHandler implements Handler {
             for (Header h : header) {
                 String name = h.getName();
                 String value = jobContext.getValue(h.getValue());
-                httpMethod.addRequestHeader(name, value);
+                request.getHeaders().add(name, value);
                 jobLogger.info("\t{} = {}", name, value);
             }
         }
 
-        if (!StringUtils.isEmpty(charSet)) {
-            params.setContentCharset(charSet);
-        }
-
         String responseBodyAsString = null;
+        ClientHttpResponse response = null;
         try {
-            int status = httpClient.executeMethod(httpMethod);
-            responseBodyAsString = httpMethod.getResponseBodyAsString();
-            jobLogger.debug("HTTP 요청의 응답 메시지는 다음과 같습니다.\n", responseBodyAsString);
-            jobLogger.info("HTTP 요청을 완료하였습니다. 상태 코드는 '{}'입니다.", status);
-            if (status != HttpStatus.ORDINAL_200_OK) {
-                throw new SystemException(ExceptionUtils.getMessage("HTTP URL 호출에 실패하였습니다. 응답코드가 OK가 아닌 '{}' 코드가 서버에서 수신하였습니다.", status));
+            response = request.execute();
+            responseBodyAsString = new String(IOUtils.readFully(response.getBody(), 4096, false));
+            jobLogger.debug("HTTP 요청의 응답 메시지는 다음과 같습니다.\n{}", responseBodyAsString);
+            jobLogger.info("HTTP 요청을 완료하였습니다. 상태 코드는 '{}({})'입니다.", response.getStatusText(), response.getRawStatusCode());
+            if (response.getRawStatusCode() != HttpStatus.ORDINAL_200_OK) {
+                throw new SystemException(ExceptionUtils.getMessage("HTTP URL 호출에 실패하였습니다. 응답코드가 OK가 아닌 '{}({})' 코드가 서버에서 수신하였습니다.", response.getStatusText(), response.getRawStatusCode()));
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw new SystemException(ExceptionUtils.getMessage("HTTP URL 호출에 실패하였습니다. 에러 메시지: {}", ExceptionUtils.getRootCause(ex).getMessage()), ex);
+        } finally {
+            try {
+                response.close();
+            } catch (Exception ex) {
+                // Ignored
+            }
         }
         return responseBodyAsString;
     }
@@ -212,12 +205,13 @@ public class HttpToLocalHandler implements Handler {
         Path path = new Path(targetDirectory, filename);
         try {
             dos = fs.create(path);
-            IOUtils.write(response.getBytes(), dos);
+            org.apache.commons.io.IOUtils.write(response.getBytes(), dos);
+            jobLogger.info("HTTP Response의 결과를 '{}' 파일에 기록했습니다.", path);
         } catch (Exception ex) {
             throw new SystemException(ExceptionUtils.getMessage("HTTP 응답을 파일로 '{}'에 기록할 수 없습니다.", path), ex);
         } finally {
             if (dos != null) {
-                IOUtils.closeQuietly(dos);
+                org.apache.commons.io.IOUtils.closeQuietly(dos);
             }
         }
     }

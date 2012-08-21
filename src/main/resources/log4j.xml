@@ -35,6 +35,10 @@
 		<priority value="INFO"/>
 	</category>
 
+	<category name="org.apache.http">
+		<priority value="INFO"/>
+	</category>
+
 	<category name="org.hibernate">
 		<priority value="WARN"/>
 	</category>
