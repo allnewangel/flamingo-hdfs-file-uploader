@@ -19,9 +19,9 @@
 		<globalVariable name="currentDate" value="${dateFormat('yyyyMMdd')}" description="string"/>
 	</globalVariables>
 
-	<job name="Seoul_Rain" description="서울시 공공 데이터 - 강수량 데이터 수집 Job">
+	<job name="Seoul_Rain_ToHDFS" description="서울시 공공 데이터 - 강수량 데이터 수집 Job (HDFS)">
 		<schedule>
-			<cronExpression>0 * * * * ?</cronExpression>
+			<cronExpression>30 * * * * ?</cronExpression>
 		</schedule>
 		<policy>
 			<ingress>
@@ -42,6 +42,21 @@
 					<stagingPath>/rain/stage/${user.name}/${currentDate}</stagingPath>
 				</hdfs>
 			</outgress>
+		</policy>
+	</job>
+
+	<job name="Seoul_Rain_Get" description="서울시 공공 데이터 - 강수량 데이터 수집 Job (HTTP)">
+		<schedule>
+			<cronExpression>0 * * * * ?</cronExpression>
+		</schedule>
+		<policy>
+			<ingress>
+				<http>
+					<url>http://openapi.seoul.go.kr:8088/json/4150495f3231323066686172656e68656974/서울시%20강우량%20정보/1/1000000000</url>
+					<method type="GET"/>
+					<target directory="/root/kimbyounggon/rain" filename="rain_${dateFormat('yyyyMMdd-HHmmss')}.txt"/>
+				</http>
+			</ingress>
 		</policy>
 	</job>
 </flamingo>
