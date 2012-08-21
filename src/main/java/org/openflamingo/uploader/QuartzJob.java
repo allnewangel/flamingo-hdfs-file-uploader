@@ -102,7 +102,9 @@ public class QuartzJob implements Job {
             handler.validate();
             handler.execute();
         } catch (Exception ex) {
-            throw new JobExecutionException("핸들러를 실행하던 도중 예외가 발생하여 Quartz Job이 실패하였습니다.", ex, false);
+            String msg = "핸들러를 실행하던 도중 예외가 발생하여 Quartz Job이 실패하였습니다.";
+            logger.warn(msg, ex);
+            throw new JobExecutionException(msg, ex, false);
         }
 
         Date endDate = new Date();
