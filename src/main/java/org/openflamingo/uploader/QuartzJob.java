@@ -21,8 +21,11 @@
 package org.openflamingo.uploader;
 
 import org.apache.commons.lang.StringUtils;
+import org.openflamingo.uploader.handler.Handler;
+import org.openflamingo.uploader.handler.HttpToLocalHandler;
 import org.openflamingo.uploader.handler.LocalToHdfsHandler;
 import org.openflamingo.uploader.jaxb.Flamingo;
+import org.openflamingo.uploader.jaxb.Http;
 import org.openflamingo.uploader.jaxb.Local;
 import org.openflamingo.uploader.util.DateUtils;
 import org.openflamingo.uploader.util.JVMIDUtils;
@@ -86,15 +89,20 @@ public class QuartzJob implements Job {
         logger.info("--------------------------------------------");
         logger.info("Job '{}'을 시작합니다", job.getName());
         logger.info("--------------------------------------------");
+        Handler handler = null;
         if (job.getPolicy().getIngress().getLocal() != null) {
             Local local = job.getPolicy().getIngress().getLocal();
-            LocalToHdfsHandler localToHdfsHandler = new LocalToHdfsHandler(jobContext, job, local, logger);
-            localToHdfsHandler.validate();
-            try {
-                localToHdfsHandler.execute();
-            } catch (Exception ex) {
-                throw new JobExecutionException("핸들러를 실행하던 도중 예외가 발생하여 Quartz Job이 실패하였습니다.", ex, false);
-            }
+            handler = new LocalToHdfsHandler(jobContext, job, local, logger);
+        } else if (job.getPolicy().getIngress().getHttp() != null) {
+            Http http = job.getPolicy().getIngress().getHttp();
+            handler = new HttpToLocalHandler(jobContext, job, http, logger);
+        }
+
+        try {
+            handler.validate();
+            handler.execute();
+        } catch (Exception ex) {
+            throw new JobExecutionException("핸들러를 실행하던 도중 예외가 발생하여 Quartz Job이 실패하였습니다.", ex, false);
         }
 
         Date endDate = new Date();

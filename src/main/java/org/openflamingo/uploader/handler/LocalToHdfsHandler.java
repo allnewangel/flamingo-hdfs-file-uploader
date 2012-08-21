@@ -30,7 +30,6 @@ import org.openflamingo.uploader.policy.SelectorPattern;
 import org.openflamingo.uploader.policy.SelectorPatternFactory;
 import org.openflamingo.uploader.util.DateUtils;
 import org.openflamingo.uploader.util.FileSystemScheme;
-import org.openflamingo.uploader.util.FileUtils;
 import org.openflamingo.uploader.util.JVMIDUtils;
 import org.slf4j.Logger;
 

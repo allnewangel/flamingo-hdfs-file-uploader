@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flamingo xmlns="http://www.openflamingo.org/schema/uploader"
+          xsi:schemaLocation="http://www.openflamingo.org/schema/uploader flamingo-uploader-1.0.xsd"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<description>서울시 공공 데이터 배치 업로드</description>
+
+	<clusters>
+		<cluster name="dev" description="개발 클러스터">
+			<fs.default.name>hdfs://172.27.21.143:9000</fs.default.name>
+			<mapred.job.tracker>172.27.21.143:9001</mapred.job.tracker>
+			<properties>
+				<property name="mapred.maximum.map.task" value="100"/>
+			</properties>
+		</cluster>
+	</clusters>
+
+	<globalVariables>
+		<globalVariable name="currentDate" value="${dateFormat('yyyyMMdd-HHmmss')}" description="string"/>
+	</globalVariables>
+
+	<job name="Seoul_Rain" description="서울시 공공 데이터 - 강수량 데이터 수집 Job">
+		<schedule>
+			<cronExpression>0 * * * * ?</cronExpression>
+		</schedule>
+		<policy>
+			<ingress>
+				<http>
+					<url>http://openapi.seoul.go.kr:8088/json/4150495f3231323066686172656e68656974/서울시%20강우량%20정보/1/1000000000</url>
+					<method type="GET"/>
+					<timeout>500</timeout>
+					<target directory="/root/kimbyounggon/rain_test" filename="rain_${currentDate}.txt"/>
+				</http>
+			</ingress>
+		</policy>
+	</job>
+</flamingo>

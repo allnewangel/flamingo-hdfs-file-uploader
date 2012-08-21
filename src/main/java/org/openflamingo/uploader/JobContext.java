@@ -41,6 +41,15 @@ public interface JobContext {
     String getValue(String name);
 
     /**
+     * 지정한 이름을 가진 값을 반환한다.
+     *
+     * @param name         꺼내올 값의 이름
+     * @param defaultValue 기본값
+     * @return 이름에 대한 값
+     */
+    String getValue(String name, String defaultValue);
+
+    /**
      * HDFS File Uploader XML의 JAXB ROOT Object을 반환한다.
      *
      * @return HDFS File Uploader XML의 JAXB ROOT Object

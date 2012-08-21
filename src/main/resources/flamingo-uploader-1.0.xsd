@@ -242,10 +242,11 @@
 		</xsd:annotation>
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="ingress">
+				<xsd:element name="ingress" minOccurs="0" maxOccurs="1">
 					<xsd:complexType>
 						<xsd:choice>
 							<xsd:element ref="local" minOccurs="1" maxOccurs="1"/>
+							<xsd:element ref="http" minOccurs="1" maxOccurs="1"/>
 							<!--
 							<xsd:element ref="ftp" minOccurs="1" maxOccurs="1"/>
 							<xsd:element ref="hdfs" minOccurs="1" maxOccurs="1"/>
@@ -253,7 +254,7 @@
 						</xsd:choice>
 					</xsd:complexType>
 				</xsd:element>
-				<xsd:element name="outgress">
+				<xsd:element name="outgress" minOccurs="0" maxOccurs="1">
 					<xsd:complexType>
 						<xsd:choice>
 							<!--
@@ -301,7 +302,7 @@
 									<xsd:enumeration value="MISFIRE_INSTRUCTION_SMART_POLICY"/>
 									<xsd:enumeration value="MISFIRE_INSTRUCTION_IGNORE_MISFIRE_POLICY"/>
 									<xsd:enumeration value="MISFIRE_INSTRUCTION_DO_NOTHING"/>
-									<xsd:enumeration value="MISFIRE_INSTRUCTION_FIRE_ONCE_NOW"/>
+									<xsd:enumeration value="MISFIRE_INSTRUCTION_FIRE_NOW"/>
 								</xsd:restriction>
 							</xsd:simpleType>
 						</xsd:attribute>
@@ -376,9 +377,6 @@
 					</xsd:annotation>
 				</xsd:element>
 			</xsd:sequence>
-			<!--
-			<xsd:attribute name="maxFiles" type="xsd:int" default="5"/>
-			-->
 		</xsd:complexType>
 	</xsd:element>
 
@@ -461,6 +459,64 @@
 		<xsd:complexType>
 			<xsd:attribute name="path" type="xsd:string" use="required"/>
 			<xsd:attribute name="deleteOnExist" type="xsd:boolean" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- HTTP -->
+	<xsd:element name="http">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="url" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="method" minOccurs="1" maxOccurs="1">
+					<xsd:complexType>
+						<xsd:attribute name="type" default="GET">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:NMTOKEN">
+									<xsd:enumeration value="GET"/>
+									<xsd:enumeration value="POST"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="charSet" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="contentType" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="body" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="timeout" type="xsd:int" default="500"/>
+				<xsd:element ref="headers" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="target">
+					<xsd:complexType>
+						<xsd:attribute name="type" default="LOCAL">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:NMTOKEN">
+									<xsd:enumeration value="LOCAL"/>
+									<xsd:enumeration value="HDFS"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+						<xsd:attribute name="cluster" type="xsd:string"/>
+						<xsd:attribute name="directory" type="xsd:string" use="required"/>
+						<xsd:attribute name="filename" type="xsd:string" use="required"/>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- Headers -->
+	<xsd:element name="headers">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="header" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- HTTP Header -->
+	<xsd:element name="header">
+		<xsd:complexType>
+			<xsd:attribute name="name" type="xsd:string" use="required"/>
+			<xsd:attribute name="value" type="xsd:string" use="required"/>
 		</xsd:complexType>
 	</xsd:element>
 

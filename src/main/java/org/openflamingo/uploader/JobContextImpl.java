@@ -166,6 +166,22 @@ public class JobContextImpl implements JobContext {
     }
 
     /**
+     * Property의 <code>name</code>에 해당하는 값을 반환한다. 해당 속성값이 존재하지 않으면 <code>null</code>을 반환한다.
+     * <code>name</code>에 해당하는 값은 변수의 expression을 처리를 통해서 값을 얻는다.
+     *
+     * @param name         Property 명
+     * @param defaultValue 기본값
+     * @return Property의 <code>name</code>에 해당하는 값, 존재하지 않는 경우 <code>null</code>
+     */
+    public String getValue(String name, String defaultValue) {
+        String evaluate = evaluate(substituteVars(props, name));
+        if ("".equals(evaluate) || name.equals(evaluate)) {
+            return defaultValue;
+        }
+        return evaluate;
+    }
+
+    /**
      * 주어진 값에 포함되어 있는 EL을 Evaluator를 이용하여 EL과 Function을 해석한다.
      *
      * @param value EL을 포함하는 문자열
