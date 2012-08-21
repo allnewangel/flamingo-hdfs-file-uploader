@@ -194,7 +194,7 @@ public class HttpToLocalHandler implements Handler {
                 throw new SystemException(ExceptionUtils.getMessage("HTTP URL 호출에 실패하였습니다. 응답코드가 OK가 아닌 '{}' 코드가 서버에서 수신하였습니다.", status));
             }
         } catch (Exception ex) {
-            throw new SystemException(ExceptionUtils.getMessage("HTTP URL 호출에 실패하였습니다. 에러 메시지: {}", ex.getMessage()), ex);
+            throw new SystemException(ExceptionUtils.getMessage("HTTP URL 호출에 실패하였습니다. 에러 메시지: {}", ExceptionUtils.getRootCause(ex).getMessage()), ex);
         }
         return responseBodyAsString;
     }
